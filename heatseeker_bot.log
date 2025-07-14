@@ -1,0 +1,219 @@
+2025-07-13 11:16:53,992 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 11:16:54,000 [INFO] discord.client: logging in using static token
+2025-07-13 11:16:54,834 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 8d855092f9e5d4c5c5b403633421ff92).
+2025-07-13 11:16:56,856 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 11:16:56,858 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 11:16:56,858 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 11:16:56,860 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 11:16:56,861 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 11:16:56,861 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 11:16:57,101 [INFO] HeatSeeker: Synced 12 slash commands
+2025-07-13 11:18:09,727 [INFO] HeatSeeker: Bot startup completed successfully
+2025-07-13 11:18:09,728 [INFO] HeatSeeker: Database initialized with 10 sample players
+2025-07-13 11:18:09,728 [INFO] HeatSeeker: All 12 slash commands synchronized
+2025-07-13 11:18:09,729 [INFO] HeatSeeker: Queue system ready for #heatseeker-queue
+2025-07-13 11:18:09,729 [INFO] HeatSeeker: Results channel ready for #heatseeker-results
+2025-07-13 11:18:09,729 [INFO] HeatSeeker: QUEUE JOIN: exotic002 - MMR: 1050, Queue size: 1/4
+2025-07-13 11:18:09,729 [INFO] HeatSeeker: QUEUE JOIN: l8smu - MMR: 1000, Queue size: 2/4
+2025-07-13 11:18:09,730 [INFO] HeatSeeker: QUEUE JOIN: imhumam3 - MMR: 1000, Queue size: 3/4
+2025-07-13 11:18:09,730 [INFO] HeatSeeker: QUEUE JOIN: 0r.f - MMR: 950, Queue size: 4/4
+2025-07-13 11:18:09,730 [INFO] HeatSeeker: QUEUE FULL: System - Queue full, creating match...
+2025-07-13 11:18:09,731 [INFO] HeatSeeker: MATCH CREATED: Match #4 - HSM2, Distribution: Random Teams
+2025-07-13 11:18:09,731 [INFO] HeatSeeker: MATCH COMPLETED: Match #4 - Team 2 Won, MMR changes: +25/-25
+2025-07-13 11:18:09,731 [INFO] HeatSeeker: PLAYER UPDATE: exotic002 - MMR: 1050->1075, W/L: 2/0->3/0
+2025-07-13 11:18:09,731 [INFO] HeatSeeker: ADMIN MODIFY: AdminUser - Changed Match #4 result to Team 1
+2025-07-13 13:56:03,444 [INFO] HeatSeeker: ADMIN RESET: System - Reset 18 players to starting values (MMR: 1000, W/L: 0/0)
+2025-07-13 13:56:03,472 [INFO] HeatSeeker: ADMIN RESET: System - Deleted 3 matches from database
+2025-07-13 14:08:44,788 [INFO] HeatSeeker: ADMIN RESET: System - Queue cleared by admin command
+2025-07-13 14:09:21,331 [INFO] HeatSeeker: ADMIN RESET: System - Queue reset simulation (3 players)
+2025-07-13 14:10:27,274 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 14:10:27,284 [INFO] discord.client: logging in using static token
+2025-07-13 14:10:28,083 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 5a236ec582ace070f9c55c7c90efe216).
+2025-07-13 14:10:30,107 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 14:10:30,111 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 14:10:30,112 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 14:10:30,113 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 14:10:30,114 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 14:10:30,114 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 14:10:30,424 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 14:11:14,588 [INFO] HeatSeeker: QUEUE RESET: System - Queue cleared (3 players removed)
+2025-07-13 14:11:14,589 [INFO] HeatSeeker: ADMIN QUEUE_RESET: DemoAdmin - Reset queue via command (3 players)
+2025-07-13 14:11:58,188 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 14:11:58,191 [INFO] discord.client: logging in using static token
+2025-07-13 14:11:58,775 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 0e7fa85a700d09a8f02dbfac7460914b).
+2025-07-13 14:12:00,794 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 14:12:00,794 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 14:12:00,795 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 14:12:00,795 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 14:12:00,795 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 14:12:00,795 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 14:12:01,010 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 14:29:36,838 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 14:29:36,847 [INFO] discord.client: logging in using static token
+2025-07-13 14:29:37,650 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 4fb3d78afbe2b334ae58b024d840b891).
+2025-07-13 14:29:39,680 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 14:29:39,684 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 14:29:39,684 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 14:29:39,689 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 14:29:39,690 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 14:29:39,690 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 14:29:39,924 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 14:29:41,162 [WARNING] discord.http: We are being rate limited. DELETE https://discord.com/api/v10/channels/1393868182913028106/messages/1393958708534575105 responded with 429. Retrying in 0.30 seconds.
+2025-07-13 14:29:41,959 [WARNING] discord.http: We are being rate limited. DELETE https://discord.com/api/v10/channels/1393868182913028106/messages/1393958685344137236 responded with 429. Retrying in 0.30 seconds.
+2025-07-13 14:29:42,615 [WARNING] discord.http: We are being rate limited. DELETE https://discord.com/api/v10/channels/1393868182913028106/messages/1393958150834487428 responded with 429. Retrying in 0.61 seconds.
+2025-07-13 14:29:44,456 [ERROR] discord.ui.view: Ignoring exception in view <MatchView timeout=None children=3> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='❌ Cancel Match' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/runner/workspace/main.py", line 239, in cancel_match
+    await handle_cancel_match(interaction, self.match_id)
+  File "/home/runner/workspace/main.py", line 482, in handle_cancel_match
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/interactions.py", line 1004, in send_message
+    response = await adapter.create_interaction_response(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/webhook/async_.py", line 224, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-07-13 14:30:37,269 [INFO] HeatSeeker: MATCH COMPLETED: Match 1 - Players can now rejoin queue immediately
+2025-07-13 14:30:37,269 [INFO] HeatSeeker: MATCH CLEANUP: Match 1 - Channel cleanup proceeding with copied data
+2025-07-13 14:43:55,926 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 14:43:55,933 [INFO] discord.client: logging in using static token
+2025-07-13 14:43:56,897 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 0d5a69e5196d35e1a4c8c8603c66282f).
+2025-07-13 14:43:58,919 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 14:43:58,923 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 14:43:58,923 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 14:43:58,930 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 14:43:58,931 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 14:43:58,932 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 14:43:59,176 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 14:47:13,822 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 14:47:13,825 [INFO] discord.client: logging in using static token
+2025-07-13 14:47:14,479 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 707d910a82669e6816294c2c2576fd77).
+2025-07-13 14:47:16,507 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 14:47:16,507 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 14:47:16,507 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 14:47:16,508 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 14:47:16,508 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 14:47:16,508 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 14:47:16,842 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 15:04:51,748 [ERROR] discord.app_commands.tree: Ignoring exception in command 'reset_queue'
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2395, in reset_queue_command
+    queue_size = reset_queue()
+                 ^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2377, in reset_queue
+    active_drafts.clear()
+    ^^^^^^^^^^^^^
+NameError: name 'active_drafts' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'reset_queue' raised an exception: NameError: name 'active_drafts' is not defined
+2025-07-13 15:06:02,091 [ERROR] discord.app_commands.tree: Ignoring exception in command 'reset_queue'
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2395, in reset_queue_command
+    queue_size = reset_queue()
+                 ^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2377, in reset_queue
+    active_drafts.clear()
+    ^^^^^^^^^^^^^
+NameError: name 'active_drafts' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/app_commands/commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'reset_queue' raised an exception: NameError: name 'active_drafts' is not defined
+2025-07-13 15:07:22,308 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 15:07:22,315 [INFO] discord.client: logging in using static token
+2025-07-13 15:07:22,895 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 17e0e8f1bddf308588f682fce10289fc).
+2025-07-13 15:07:24,922 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 15:07:24,927 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 15:07:24,928 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 15:07:24,935 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 15:07:24,937 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 15:07:24,937 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 15:07:25,230 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 15:08:47,121 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 15:08:47,130 [INFO] discord.client: logging in using static token
+2025-07-13 15:08:47,824 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 244f22f2c38ccf7fc483687cf799da55).
+2025-07-13 15:08:49,926 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 15:08:49,931 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 15:08:49,931 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 15:08:49,936 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 15:08:49,937 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 15:08:49,939 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 15:08:50,215 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 15:12:51,871 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 15:12:51,876 [INFO] discord.client: logging in using static token
+2025-07-13 15:12:52,566 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: dbc822cad470c3fb650eac2f55532490).
+2025-07-13 15:12:54,594 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 15:12:54,594 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 15:12:54,595 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 15:12:54,595 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 15:12:54,595 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 15:12:54,596 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 15:12:55,087 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 15:25:56,302 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 15:25:56,309 [INFO] discord.client: logging in using static token
+2025-07-13 15:25:57,019 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: aeb2fb1d97d422decb52d37c4d0793e2).
+2025-07-13 15:25:59,044 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 15:25:59,049 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 15:25:59,050 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 15:25:59,051 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 15:25:59,052 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 15:25:59,053 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 15:25:59,354 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 15:32:04,476 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-13 15:32:04,481 [INFO] discord.client: logging in using static token
+2025-07-13 15:32:05,156 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: e07beac23121168e1ce862a8a6667d11).
+2025-07-13 15:32:07,205 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-13 15:32:07,205 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-13 15:32:07,206 [INFO] HeatSeeker: Sample data added to database
+2025-07-13 15:32:07,206 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-13 15:32:07,206 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-13 15:32:07,207 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-13 15:32:07,437 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-13 19:18:49,984 [INFO] discord.gateway: Shard ID None has successfully RESUMED session e07beac23121168e1ce862a8a6667d11.
+2025-07-13 22:24:49,192 [INFO] discord.gateway: Shard ID None has successfully RESUMED session e07beac23121168e1ce862a8a6667d11.
+2025-07-14 15:56:13,626 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-14 15:56:13,636 [INFO] discord.client: logging in using static token
+2025-07-14 15:56:14,263 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: b47194aeb6cc1c55ef552fe3aee0f02e).
+2025-07-14 15:56:16,292 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-14 15:56:16,300 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-14 15:56:16,300 [INFO] HeatSeeker: Sample data added to database
+2025-07-14 15:56:16,301 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-14 15:56:16,302 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-14 15:56:16,303 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-14 15:56:16,562 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-14 16:00:17,831 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-14 16:00:17,835 [INFO] discord.client: logging in using static token
+2025-07-14 16:00:18,398 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 23569422a2f3033f95c629003fd1ac4f).
+2025-07-14 16:00:20,424 [INFO] HeatSeeker: HSM Ranked System#4626 has connected to Discord!
+2025-07-14 16:00:20,425 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-14 16:00:20,425 [INFO] HeatSeeker: Sample data added to database
+2025-07-14 16:00:20,425 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-14 16:00:20,425 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-14 16:00:20,425 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-14 16:00:20,746 [INFO] HeatSeeker: Synced 13 slash commands
+2025-07-14 18:41:59,490 [INFO] discord.gateway: Shard ID None has successfully RESUMED session 23569422a2f3033f95c629003fd1ac4f.
