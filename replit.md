@@ -201,6 +201,30 @@ The application follows a modern full-stack architecture with the following comp
 - ✓ **ELIMINATED QUEUE BLOCKING** - Bot now properly restores 0 active matches on startup instead of cancelled matches
 - ✓ **RESTORED QUEUE FUNCTIONALITY** - All players can now join queue without "currently in an active match" errors
 
+### July 15, 2025
+- ✓ **CHANGED DEFAULT QUEUE SIZE** - Updated from 4 players (2v2) to 2 players (1v1) as default
+- ✓ **ADDED DYNAMIC QUEUE CONFIGURATION** - New /queueplayer command to set queue size (2=1v1, 4=2v2, 6=3v3, etc.)
+- ✓ **IMPLEMENTED AUTO-LEADERBOARD SYSTEM** - Automatic leaderboard updates every 30 minutes in designated channel
+- ✓ **ADDED /set_leaderboard COMMAND** - Admins can set any channel as auto-updating leaderboard
+- ✓ **ENHANCED MATCH CREATION SYSTEM** - Added /create_match command for custom HSM match creation
+- ✓ **IMPROVED MENA SERVER DISPLAY** - All match messages now show Server Region: MENA
+- ✓ **FIXED DUPLICATE CHANNEL PREVENTION** - Enhanced system to prevent duplicate match channel creation
+- ✓ **CREATED CONFIGURATION GUIDE** - Comprehensive guide for manual editing of queue settings
+- ✓ **DYNAMIC TEAM BALANCING** - Captain draft system now works with any team size (1v1, 2v2, 3v3, 5v5, etc.)
+- ✓ **FLEXIBLE PICK ORDER SYSTEM** - Automatically adjusts captain draft picks based on team size
+- ✓ **ENHANCED QUEUE DISPLAY** - All queue messages now show current configuration (1v1, 2v2, etc.)
+- ✓ **ADDED QUEUE RESET ON CONFIGURATION CHANGE** - Queue clears when admin changes player count
+- ✓ **FIXED MATCH RESULT BUTTONS** - Resolved "This interaction failed" error when determining match winners
+- ✓ **CLEANED DATABASE** - Removed corrupted match data (Match 7 with incomplete team data)
+- ✓ **ENHANCED ERROR HANDLING** - Added comprehensive try-catch blocks and detailed logging for match interactions
+- ✓ **IMPROVED BUTTON VALIDATION** - Added thorough data validation for all match result buttons
+- ✓ **ADDED DEBUGGING TOOLS** - Created match_result_fix.py and fix_match_buttons.py for troubleshooting
+- ✓ **IMPLEMENTED SEQUENTIAL HSM NUMBERING** - Match names now use sequential numbering (HSM1, HSM2, HSM3, etc.)
+- ✓ **FIXED TEAM CREATION LOGIC** - Dynamic team balancing now properly uses TEAM_SIZE variable
+- ✓ **UPDATED MATCH WELCOME MESSAGES** - All match displays now show correct game type (1v1, 2v2, etc.)
+- ✓ **ENHANCED QUEUE DISPLAY** - Queue counter now shows correct player requirements based on configuration
+- ✓ **ADDED HSM_NUMBER DATABASE COLUMN** - Match database now tracks sequential HSM numbers for proper ordering
+
 ## Deployment Strategy
 
 ### Current State

@@ -35,6 +35,12 @@ queue_last_activity = None
 pending_team_selection = {}  # Store pending team selection data
 captain_draft_state = {}  # Store captain draft state
 
+# Dynamic queue configuration
+QUEUE_SIZE = 2  # Default queue size (changed from 4 to 2)
+TEAM_SIZE = 1   # Default team size (1v1 instead of 2v2)
+leaderboard_task = None  # For auto-updating leaderboard
+leaderboard_channel = None  # Store leaderboard channel
+
 # Global variables for private chat system
 private_chats = {}  # Store private chat data
 used_hsm_numbers = set()  # Track used HSM numbers
@@ -66,8 +72,18 @@ c.execute('''CREATE TABLE IF NOT EXISTS matches (
     ended_at TEXT,
     channel_id TEXT,
     admin_modified INTEGER DEFAULT 0,
-    cancelled INTEGER DEFAULT 0
+    cancelled INTEGER DEFAULT 0,
+    hsm_number INTEGER
 )''')
+
+# Add hsm_number column if it doesn't exist (for existing databases)
+try:
+    c.execute("ALTER TABLE matches ADD COLUMN hsm_number INTEGER")
+    conn.commit()
+    print("[DEBUG] Added hsm_number column to matches table")
+except sqlite3.OperationalError:
+    # Column already exists
+    pass
 
 # Create private chats table
 c.execute('''CREATE TABLE IF NOT EXISTS private_chats (
@@ -118,48 +134,74 @@ def restore_active_matches():
         db_matches = c.fetchall()
         
         restored_count = 0
+        cancelled_count = 0
+        
         for match_id, team1_ids, team2_ids, created_at, channel_id in db_matches:
+            logger.info(f"RESTORE: Processing match {match_id} - team1: '{team1_ids}', team2: '{team2_ids}'")
+            
             # Parse team player IDs
-            team1_player_ids = team1_ids.split(',') if team1_ids else []
-            team2_player_ids = team2_ids.split(',') if team2_ids else []
+            team1_player_ids = team1_ids.split(',') if team1_ids and team1_ids.strip() else []
+            team2_player_ids = team2_ids.split(',') if team2_ids and team2_ids.strip() else []
+            
+            # Check for empty teams
+            if not team1_player_ids or not team2_player_ids:
+                logger.warning(f"RESTORE: Match {match_id} has empty team data - cancelling")
+                # Cancel this corrupted match
+                c.execute("UPDATE matches SET winner = -1, cancelled = 1 WHERE match_id = ?", (match_id,))
+                conn.commit()
+                cancelled_count += 1
+                continue
             
             # Get player data for each team
             team1 = []
             team2 = []
             
             for player_id in team1_player_ids:
-                c.execute("SELECT username, mmr FROM players WHERE id = ?", (player_id,))
-                result = c.fetchone()
-                if result:
-                    username, mmr = result
-                    team1.append({'id': player_id, 'username': username, 'mmr': mmr})
+                if player_id.strip():  # Only process non-empty player IDs
+                    c.execute("SELECT username, mmr FROM players WHERE id = ?", (player_id.strip(),))
+                    result = c.fetchone()
+                    if result:
+                        username, mmr = result
+                        team1.append({'id': player_id.strip(), 'username': username, 'mmr': mmr})
             
             for player_id in team2_player_ids:
-                c.execute("SELECT username, mmr FROM players WHERE id = ?", (player_id,))
-                result = c.fetchone()
-                if result:
-                    username, mmr = result
-                    team2.append({'id': player_id, 'username': username, 'mmr': mmr})
+                if player_id.strip():  # Only process non-empty player IDs
+                    c.execute("SELECT username, mmr FROM players WHERE id = ?", (player_id.strip(),))
+                    result = c.fetchone()
+                    if result:
+                        username, mmr = result
+                        team2.append({'id': player_id.strip(), 'username': username, 'mmr': mmr})
             
-            # Only restore if we have complete team data
-            if len(team1) == 2 and len(team2) == 2:
-                # Generate HSM number (simplified - use match_id as HSM number)
-                hsm_number = match_id
-                
-                active_matches[match_id] = {
-                    'team1': team1,
-                    'team2': team2,
-                    'players': team1_player_ids + team2_player_ids,
-                    'channel_id': channel_id,
-                    'hsm_number': hsm_number,
-                    'distribution_method': 'Restored',
-                    'created_at': created_at
-                }
-                restored_count += 1
-                print(f"[DEBUG] Restored match {match_id}: HSM{hsm_number}")
+            # Check if we have valid team data
+            expected_team_size = QUEUE_SIZE // 2
+            if len(team1) != expected_team_size or len(team2) != expected_team_size:
+                logger.warning(f"RESTORE: Match {match_id} has incomplete team data - team1: {len(team1)}, team2: {len(team2)}, expected: {expected_team_size}")
+                # Cancel this corrupted match
+                c.execute("UPDATE matches SET winner = -1, cancelled = 1 WHERE match_id = ?", (match_id,))
+                conn.commit()
+                cancelled_count += 1
+                continue
+            
+            # Generate HSM number (simplified - use match_id as HSM number)
+            hsm_number = match_id
+            
+            active_matches[match_id] = {
+                'team1': team1,
+                'team2': team2,
+                'players': [p.strip() for p in team1_player_ids + team2_player_ids if p.strip()],
+                'channel_id': channel_id,
+                'hsm_number': hsm_number,
+                'distribution_method': 'Restored',
+                'created_at': created_at
+            }
+            restored_count += 1
+            logger.info(f"RESTORE: Successfully restored match {match_id}: HSM{hsm_number}")
         
+        logger.info(f"RESTORE: Restored {restored_count} active matches, cancelled {cancelled_count} corrupted matches")
         print(f"[DEBUG] Restored {restored_count} active matches from database")
+        
     except Exception as e:
+        logger.error(f"RESTORE: Error restoring active matches: {e}")
         print(f"[DEBUG] Error restoring active matches: {e}")
         active_matches = {}
 
@@ -228,15 +270,27 @@ class MatchView(discord.ui.View):
     
     @discord.ui.button(label='🏆 Team 1 Won', style=discord.ButtonStyle.green, custom_id='team1_win')
     async def team1_win(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await handle_match_result(interaction, 1, self.match_id)
+        try:
+            await handle_match_result(interaction, 1, self.match_id)
+        except Exception as e:
+            logger.error(f"Error in team1_win button: {e}")
+            await interaction.response.send_message(f"❌ Error processing Team 1 win: {e}", ephemeral=True)
     
     @discord.ui.button(label='🏆 Team 2 Won', style=discord.ButtonStyle.green, custom_id='team2_win')
     async def team2_win(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await handle_match_result(interaction, 2, self.match_id)
+        try:
+            await handle_match_result(interaction, 2, self.match_id)
+        except Exception as e:
+            logger.error(f"Error in team2_win button: {e}")
+            await interaction.response.send_message(f"❌ Error processing Team 2 win: {e}", ephemeral=True)
     
     @discord.ui.button(label='❌ Cancel Match', style=discord.ButtonStyle.secondary, custom_id='cancel_match')
     async def cancel_match(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await handle_cancel_match(interaction, self.match_id)
+        try:
+            await handle_cancel_match(interaction, self.match_id)
+        except Exception as e:
+            logger.error(f"Error in cancel_match button: {e}")
+            await interaction.response.send_message(f"❌ Error canceling match: {e}", ephemeral=True)
 
 class PrivateChatView(discord.ui.View):
     def __init__(self):
@@ -344,13 +398,13 @@ async def handle_join_queue(interaction: discord.Interaction):
         # Update queue activity for timeout system
         update_queue_activity()
         
-        await interaction.response.send_message(f"✅ **{interaction.user.display_name}** joined the queue! ({len(player_queue)}/4)\n⏰ Queue timeout: {QUEUE_TIMEOUT_MINUTES} minutes", ephemeral=True)
+        await interaction.response.send_message(f"✅ **{interaction.user.display_name}** joined the queue! ({len(player_queue)}/{QUEUE_SIZE})\n⏰ Queue timeout: {QUEUE_TIMEOUT_MINUTES} minutes", ephemeral=True)
         
         # Update the queue display
         await update_queue_display(interaction.channel)
         
-        # Check if we have 4 players to start a match
-        if len(player_queue) >= 4:
+        # Check if we have enough players to start a match
+        if len(player_queue) >= QUEUE_SIZE:
             await create_match(interaction.channel, interaction.guild)
 
 async def handle_leave_queue(interaction: discord.Interaction):
@@ -373,7 +427,7 @@ async def handle_leave_queue(interaction: discord.Interaction):
     # Update queue activity for timeout system
     update_queue_activity()
     
-    await interaction.response.send_message(f"✅ **{interaction.user.display_name}** left the queue! ({len(player_queue)}/4)", ephemeral=True)
+    await interaction.response.send_message(f"✅ **{interaction.user.display_name}** left the queue! ({len(player_queue)}/{QUEUE_SIZE})", ephemeral=True)
     
     # Update the queue display
     await update_queue_display(interaction.channel)
@@ -393,7 +447,7 @@ async def handle_queue_status(interaction: discord.Interaction):
     else:
         embed = discord.Embed(
             title="📋 Queue Status",
-            description=f"**{len(player_queue)}/4** players in queue",
+            description=f"**{len(player_queue)}/{QUEUE_SIZE}** players in queue",
             color=discord.Color.blue()
         )
         
@@ -407,16 +461,46 @@ async def handle_queue_status(interaction: discord.Interaction):
 
 async def handle_match_result(interaction: discord.Interaction, team_number: int, match_id: int):
     """Handle match result button press"""
-    if match_id not in active_matches:
-        await interaction.response.send_message("❌ Match not found or already completed!", ephemeral=True)
-        return
+    logger.info(f"MATCH RESULT: Processing team {team_number} win for match {match_id} by {interaction.user.display_name}")
     
-    match_data = active_matches[match_id]
-    
-    # Check if user is part of the match
-    user_id = str(interaction.user.id)
-    if user_id not in match_data['players']:
-        await interaction.response.send_message("❌ Only match participants can report results!", ephemeral=True)
+    try:
+        if match_id not in active_matches:
+            logger.warning(f"MATCH RESULT: Match {match_id} not found in active matches")
+            await interaction.response.send_message("❌ Match not found or already completed!", ephemeral=True)
+            return
+        
+        match_data = active_matches[match_id]
+        
+        # Check if user is part of the match
+        user_id = str(interaction.user.id)
+        if user_id not in match_data['players']:
+            logger.warning(f"MATCH RESULT: User {interaction.user.display_name} not in match {match_id} players")
+            await interaction.response.send_message("❌ Only match participants can report results!", ephemeral=True)
+            return
+        
+        # Validate team number
+        if team_number not in [1, 2]:
+            logger.error(f"MATCH RESULT: Invalid team number {team_number} for match {match_id}")
+            await interaction.response.send_message("❌ Invalid team number!", ephemeral=True)
+            return
+        
+        # Validate match data structure
+        if 'team1' not in match_data or 'team2' not in match_data:
+            logger.error(f"MATCH RESULT: Missing team data in match {match_id}")
+            await interaction.response.send_message("❌ Match data corrupted!", ephemeral=True)
+            return
+        
+        # Validate team data is not empty
+        if not match_data['team1'] or not match_data['team2']:
+            logger.error(f"MATCH RESULT: Empty team data in match {match_id} - team1: {len(match_data['team1'])}, team2: {len(match_data['team2'])}")
+            await interaction.response.send_message("❌ Match has empty team data!", ephemeral=True)
+            return
+        
+        logger.info(f"MATCH RESULT: All validations passed for match {match_id} - team1: {len(match_data['team1'])}, team2: {len(match_data['team2'])}")
+        
+    except Exception as e:
+        logger.error(f"MATCH RESULT: Error in validation for match {match_id}: {e}")
+        await interaction.response.send_message(f"❌ Error processing match result: {e}", ephemeral=True)
         return
     
     # Update match result
@@ -667,24 +751,17 @@ def generate_hsm_number():
     return None  # All numbers are used
 
 def generate_match_hsm_number():
-    """Generate a unique HSM number for match channels from 1 to 9999"""
-    # Get all used HSM numbers from both private chats and active matches
-    c.execute("SELECT hsm_number FROM private_chats WHERE is_active = 1")
-    used_private = {row[0] for row in c.fetchall()}
+    """Generate a sequential HSM number for match channels"""
+    # Get the highest HSM number from completed matches
+    c.execute("SELECT MAX(hsm_number) FROM matches WHERE hsm_number IS NOT NULL")
+    result = c.fetchone()
     
-    # Get HSM numbers from active matches
-    used_matches = {match.get('hsm_number') for match in active_matches.values() if match.get('hsm_number')}
-    
-    # Combine all used numbers
-    used_numbers = used_private | used_matches
-    
-    # Find the first available number
-    for num in range(1, 10000):
-        if num not in used_numbers:
-            return num
-    
-    # If all numbers are used (very unlikely), return None
-    return None
+    if result and result[0] is not None:
+        # Return the next number in sequence
+        return result[0] + 1
+    else:
+        # First match starts with HSM1
+        return 1
 
 # Private match channel functions removed - simplified queue system
 
@@ -783,9 +860,9 @@ async def create_match(queue_channel, guild):
     """Show team selection options when queue is complete"""
     global match_id_counter, player_queue
     
-    # Get 4 players from queue
-    match_players = player_queue[:4]
-    player_queue = player_queue[4:]
+    # Get required players from queue
+    match_players = player_queue[:QUEUE_SIZE]
+    player_queue = player_queue[QUEUE_SIZE:]
     
     # Generate HSM number for the match
     hsm_number = generate_match_hsm_number()
@@ -804,7 +881,7 @@ async def create_match(queue_channel, guild):
     # Create team selection embed
     embed = discord.Embed(
         title="🎮 Queue Complete - Team Selection",
-        description=f"**4 players found! Choose your team distribution method:**\n\n**Match: HSM{hsm_number}**",
+        description=f"**{QUEUE_SIZE} players found! Choose your team distribution method:**\n\n**Match: HSM{hsm_number}**",
         color=discord.Color.gold()
     )
     
@@ -878,7 +955,7 @@ async def handle_captain_draft_selection(interaction: discord.Interaction, playe
     sorted_players = sorted(players, key=lambda p: p['mmr'], reverse=True)
     captain1 = sorted_players[0]
     captain2 = sorted_players[1]
-    available_players = sorted_players[2:]  # Remaining 2 players
+    available_players = sorted_players[2:]  # Remaining players
     
     print(f"[DEBUG] Captain 1: {captain1['username']} ({captain1['mmr']} MMR)")
     print(f"[DEBUG] Captain 2: {captain2['username']} ({captain2['mmr']} MMR)")
@@ -886,9 +963,22 @@ async def handle_captain_draft_selection(interaction: discord.Interaction, playe
     
     # Create draft state
     draft_id = f"draft_{hsm_number}"
-    # For 2v2, we have 2 captains and 2 available players
-    # Each captain picks once: [0, 1] for 2 total picks
-    pick_order = [0, 1]  # Captain 1 picks first, then Captain 2
+    # Dynamic pick order based on team size
+    # For 1v1 (2 players total): no picks needed, just captains
+    # For 2v2 (4 players total): 2 captains + 2 picks, each captain picks once
+    # For 3v3 (6 players total): 2 captains + 4 picks, alternating picks
+    if TEAM_SIZE == 1:
+        pick_order = []  # No picks needed for 1v1
+    elif TEAM_SIZE == 2:
+        pick_order = [0, 1]  # Each captain picks once
+    elif TEAM_SIZE == 3:
+        pick_order = [0, 1, 1, 0]  # Alternating picks
+    else:
+        # Generate pick order for larger teams
+        picks_needed = QUEUE_SIZE - 2  # Total picks needed (excluding captains)
+        pick_order = []
+        for i in range(picks_needed):
+            pick_order.append(i % 2)  # Alternate between captains
     
     captain_draft_state[draft_id] = {
         'hsm_number': hsm_number,
@@ -1085,26 +1175,41 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
         member = player['user']
         overwrites[member] = discord.PermissionOverwrite(read_messages=True, send_messages=True)
     
+    # Check if channel with this HSM number already exists to prevent duplicates
+    existing_channel = discord.utils.get(guild.channels, name=f"hsm{hsm_number}")
+    if existing_channel:
+        # Delete the existing channel to prevent duplicates
+        await existing_channel.delete(reason="Preventing duplicate match channel")
+    
     # Create dedicated private text channel for the match
     match_channel = await guild.create_text_channel(
         name=f"hsm{hsm_number}",
         category=category,
-        topic=f"HeatSeeker Match HSM{hsm_number} - Private Match Channel",
+        topic=f"HeatSeeker Match HSM{hsm_number} - Private Match Channel - Server: MENA",
         overwrites=overwrites
     )
+    
+    # Check and delete existing voice channels to prevent duplicates
+    existing_voice1 = discord.utils.get(guild.channels, name=f"🔴 Team 1 - HSM{hsm_number}")
+    if existing_voice1:
+        await existing_voice1.delete(reason="Preventing duplicate voice channel")
+    
+    existing_voice2 = discord.utils.get(guild.channels, name=f"🔵 Team 2 - HSM{hsm_number}")
+    if existing_voice2:
+        await existing_voice2.delete(reason="Preventing duplicate voice channel")
     
     # Create voice channels for each team with same permissions
     team1_voice = await guild.create_voice_channel(
         name=f"🔴 Team 1 - HSM{hsm_number}",
         category=category,
-        user_limit=2,
+        user_limit=TEAM_SIZE,
         overwrites=overwrites
     )
     
     team2_voice = await guild.create_voice_channel(
         name=f"🔵 Team 2 - HSM{hsm_number}",
         category=category,
-        user_limit=2,
+        user_limit=TEAM_SIZE,
         overwrites=overwrites
     )
     
@@ -1125,9 +1230,9 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
     try:
         team1_ids = ','.join([p['id'] for p in team1])
         team2_ids = ','.join([p['id'] for p in team2])
-        c.execute("""INSERT INTO matches (match_id, team1_players, team2_players, created_at, channel_id) 
-                     VALUES (?, ?, ?, ?, ?)""", 
-                  (match_id, team1_ids, team2_ids, datetime.now().isoformat(), str(match_channel.id)))
+        c.execute("""INSERT INTO matches (match_id, team1_players, team2_players, created_at, channel_id, hsm_number) 
+                     VALUES (?, ?, ?, ?, ?, ?)""", 
+                  (match_id, team1_ids, team2_ids, datetime.now().isoformat(), str(match_channel.id), hsm_number))
         conn.commit()
         print(f"[DEBUG] Match {match_id} saved to database successfully")
     except Exception as e:
@@ -1142,9 +1247,9 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
             active_matches[match_id] = active_matches.pop(match_id_counter - 1)
             # Try insert again with new match_id
             try:
-                c.execute("""INSERT INTO matches (match_id, team1_players, team2_players, created_at, channel_id) 
-                             VALUES (?, ?, ?, ?, ?)""", 
-                          (match_id, team1_ids, team2_ids, datetime.now().isoformat(), str(match_channel.id)))
+                c.execute("""INSERT INTO matches (match_id, team1_players, team2_players, created_at, channel_id, hsm_number) 
+                             VALUES (?, ?, ?, ?, ?, ?)""", 
+                          (match_id, team1_ids, team2_ids, datetime.now().isoformat(), str(match_channel.id), hsm_number))
                 conn.commit()
                 print(f"[DEBUG] Match {match_id} saved to database successfully (retry)")
             except Exception as e2:
@@ -1182,10 +1287,29 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
         )
         
         # Match stats
-        avg_mmr = sum(p['mmr'] for p in all_players) / 4
+        avg_mmr = sum(p['mmr'] for p in all_players) / len(all_players)
+        
+        # Add server and match name info
+        embed.add_field(
+            name="🌍 Server Region",
+            value="**MENA** (Middle East & North Africa)",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🏷️ Match Name",
+            value=f"**HSM{hsm_number}**\n*Players type this name to join*",
+            inline=True
+        )
         embed.add_field(
             name="📊 Match Statistics",
-            value=f"**Average MMR:** {avg_mmr:.0f}\n**Match ID:** {match_id}\n**HSM Number:** {hsm_number}",
+            value=f"**Average MMR:** {avg_mmr:.0f}\n**Match ID:** {match_id}",
+            inline=True
+        )
+        
+        embed.add_field(
+            name="🎮 How to Join",
+            value=f"1. Type match name: **HSM{hsm_number}**\n2. Enter the match channel\n3. Start playing!",
             inline=False
         )
         
@@ -1204,9 +1328,10 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
         await update_queue_display(queue_channel)
     
     # Send welcome message to private match channel
+    match_type = f"{TEAM_SIZE}v{TEAM_SIZE}"
     welcome_embed = discord.Embed(
         title=f"🎮 Welcome to Match HSM{hsm_number}!",
-        description=f"**Get ready for an epic 2v2 battle!**\n\n**Team Distribution:** {distribution_method}",
+        description=f"**Get ready for an epic {match_type} battle!**\n\n**Team Distribution:** {distribution_method}",
         color=discord.Color.purple()
     )
     
@@ -1219,6 +1344,12 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number, distr
     welcome_embed.add_field(
         name="🔵 Team 2",
         value=f"{team2_mentions}\n**Voice Channel:** {team2_voice.mention}",
+        inline=True
+    )
+    
+    welcome_embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
         inline=True
     )
     
@@ -1505,7 +1636,7 @@ async def update_queue_display(channel):
     else:
         embed = discord.Embed(
             title="🎮 HeatSeeker Queue",
-            description=f"**{len(player_queue)}/4** players ready",
+            description=f"**{len(player_queue)}/{QUEUE_SIZE}** players ready",
             color=discord.Color.orange()
         )
         
@@ -1571,21 +1702,22 @@ async def on_ready():
                         pass
             
             # Send professional startup message with buttons
+            match_type = f"{TEAM_SIZE}v{TEAM_SIZE}"
             embed = discord.Embed(
-                title="🔥 HeatSeeker Bot - Professional 2v2 Queue System",
+                title=f"🔥 HeatSeeker Bot - Professional {match_type} Queue System",
                 description="**Welcome to the ultimate competitive gaming experience!**\n\nUse the buttons below to interact with the queue system.",
                 color=discord.Color.gold()
             )
             
             embed.add_field(
                 name="🎮 How It Works",
-                value="• Click **🎮 Join Queue** to enter the 2v2 queue\n• When 4 players join, a match will be created automatically\n• Each match gets dedicated text and voice channels\n• Teams are balanced based on MMR for fair gameplay",
+                value=f"• Click **🎮 Join Queue** to enter the {match_type} queue\n• When {QUEUE_SIZE} players join, a match will be created automatically\n• Each match gets dedicated text and voice channels\n• Teams are balanced based on MMR for fair gameplay",
                 inline=False
             )
             
             embed.add_field(
                 name="🏆 Features",
-                value="• **Dedicated match channels** for each game\n• **Team voice channels** (2 players max each)\n• **Automatic team balancing** based on skill\n• **Professional MMR tracking** system\n• **Auto-cleanup** after matches complete",
+                value=f"• **Dedicated match channels** for each game\n• **Team voice channels** ({TEAM_SIZE} players max each)\n• **Automatic team balancing** based on skill\n• **Professional MMR tracking** system\n• **Auto-cleanup** after matches complete",
                 inline=False
             )
             
@@ -1773,6 +1905,268 @@ async def top(interaction: discord.Interaction):
         embed.set_footer(text="Leaderboard shows only players who have participated in matches")
         await interaction.response.send_message(embed=embed)
 
+# Traditional command versions for better compatibility
+@bot.command(name='queueplayer')
+async def queueplayer_cmd(ctx, players: int):
+    """Set the number of players for the queue (2=1v1, 4=2v2, 6=3v3, etc.)"""
+    
+    # Check if user is admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("❌ Only administrators can change queue settings!")
+        return
+    
+    # Validate player count
+    if players < 2 or players > 20:
+        await ctx.send("❌ Number of players must be between 2 and 20!")
+        return
+    
+    if players % 2 != 0:
+        await ctx.send("❌ Number of players must be even (2, 4, 6, 8, etc.)!")
+        return
+    
+    # Update global queue configuration
+    global QUEUE_SIZE, TEAM_SIZE
+    QUEUE_SIZE = players
+    TEAM_SIZE = players // 2
+    
+    # Clear current queue if any
+    global player_queue
+    if player_queue:
+        player_queue.clear()
+    
+    # Create configuration embed
+    embed = discord.Embed(
+        title="⚙️ Queue Configuration Updated!",
+        description=f"Queue system has been reconfigured successfully",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="🎯 New Configuration",
+        value=f"**Total Players:** {QUEUE_SIZE}\n**Team Size:** {TEAM_SIZE}v{TEAM_SIZE}\n**Teams:** 2 teams",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Status",
+        value="✅ **Active** - Players can now join the queue",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🔄 Queue Reset",
+        value="Current queue has been cleared\nPlayers need to rejoin with new configuration",
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Configuration changed by {ctx.author.display_name}")
+    
+    await ctx.send(embed=embed)
+    
+    # Update queue display if queue channel exists
+    queue_channel = discord.utils.get(ctx.guild.channels, name=QUEUE_CHANNEL_NAME)
+    if queue_channel:
+        await update_queue_display(queue_channel)
+    
+    # Log the change
+    logger.info(f"Queue configuration changed to {TEAM_SIZE}v{TEAM_SIZE} ({QUEUE_SIZE} players) by {ctx.author.display_name}")
+
+@bot.command(name='setleaderboard')
+async def setleaderboard_cmd(ctx):
+    """Set the current channel as auto-updating leaderboard"""
+    
+    # Check if user is admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("❌ Only administrators can set leaderboard channel!")
+        return
+    
+    global leaderboard_channel
+    leaderboard_channel = ctx.channel
+    
+    # Start the leaderboard update task
+    if not update_leaderboard.is_running():
+        update_leaderboard.start()
+    
+    embed = discord.Embed(
+        title="✅ Leaderboard Channel Set!",
+        description="This channel will now display the auto-updating leaderboard",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="📊 Update Frequency",
+        value="**Every 30 minutes** automatically",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🎯 Current Queue",
+        value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Features",
+        value="• Top 10 players by MMR\n• Win/Loss statistics\n• Auto-refresh every 30 minutes\n• Shows current queue configuration",
+        inline=False
+    )
+    
+    embed.set_footer(text="First leaderboard update will appear in a few seconds")
+    
+    await ctx.send(embed=embed)
+    
+    # Trigger immediate update
+    await update_leaderboard()
+    
+    logger.info(f"Leaderboard channel set to {ctx.channel.name} by {ctx.author.display_name}")
+
+@bot.command(name='creatematch')
+async def creatematch_cmd(ctx, match_name: str):
+    """Create a custom match with specific HSM name"""
+    
+    # Check if user is admin
+    if not ctx.author.guild_permissions.administrator:
+        await ctx.send("❌ Only administrators can create custom matches!")
+        return
+    
+    # Validate match name format
+    if not match_name.upper().startswith('HSM'):
+        await ctx.send("❌ Match name must start with 'HSM' (e.g., HSM1, HSM2, HSM3)")
+        return
+    
+    # Extract HSM number
+    try:
+        hsm_number = int(match_name.upper().replace('HSM', ''))
+        if hsm_number < 1 or hsm_number > 9999:
+            await ctx.send("❌ HSM number must be between 1 and 9999")
+            return
+    except ValueError:
+        await ctx.send("❌ Invalid HSM number format. Use HSM1, HSM2, etc.")
+        return
+    
+    # Check if match with this HSM number already exists
+    existing_match = None
+    for match_id, match_data in active_matches.items():
+        if match_data.get('hsm_number') == hsm_number:
+            existing_match = match_id
+            break
+    
+    if existing_match:
+        await ctx.send(f"❌ Match HSM{hsm_number} already exists! Use a different number.")
+        return
+    
+    # Create embed for match creation
+    embed = discord.Embed(
+        title="🎮 Custom Match Created!",
+        description=f"**Match HSM{hsm_number}** is ready for players!",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="🏷️ Match Name",
+        value=f"**HSM{hsm_number}**",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Status",
+        value="**Waiting for players**",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🎯 How Players Join",
+        value=f"1. Players type: **HSM{hsm_number}**\n2. Join the match channels\n3. Start playing!",
+        inline=False
+    )
+    
+    # Get or create match category
+    category = discord.utils.get(ctx.guild.categories, name=MATCH_CATEGORY_NAME)
+    if not category:
+        category = await ctx.guild.create_category(
+            name=MATCH_CATEGORY_NAME,
+            reason="HeatSeeker match category"
+        )
+    
+    # Create the match channels
+    try:
+        # Delete existing channels with same name to prevent duplicates
+        existing_channel = discord.utils.get(ctx.guild.channels, name=f"hsm{hsm_number}")
+        if existing_channel:
+            await existing_channel.delete(reason="Recreating match channel")
+        
+        # Create text channel
+        match_channel = await ctx.guild.create_text_channel(
+            name=f"hsm{hsm_number}",
+            category=category,
+            topic=f"HeatSeeker Match HSM{hsm_number} - Custom Match - Server: MENA"
+        )
+        
+        # Create voice channel
+        voice_channel = await ctx.guild.create_voice_channel(
+            name=f"🎮 HSM{hsm_number} - Game Room",
+            category=category,
+            user_limit=QUEUE_SIZE
+        )
+        
+        embed.add_field(
+            name="📍 Match Channels",
+            value=f"**Text:** {match_channel.mention}\n**Voice:** {voice_channel.mention}",
+            inline=False
+        )
+        
+        embed.set_footer(text="Match channels created successfully!")
+        
+        await ctx.send(embed=embed)
+        
+        # Send welcome message to match channel
+        welcome_embed = discord.Embed(
+            title=f"🎮 Welcome to Match HSM{hsm_number}!",
+            description="**Custom match created by admin**\n\nPlayers can now join and start playing!",
+            color=discord.Color.purple()
+        )
+        
+        welcome_embed.add_field(
+            name="🌍 Server Region",
+            value="**MENA** (Middle East & North Africa)",
+            inline=True
+        )
+        
+        welcome_embed.add_field(
+            name="🎯 Match Name",
+            value=f"**HSM{hsm_number}**",
+            inline=True
+        )
+        
+        welcome_embed.add_field(
+            name="📝 Instructions",
+            value="1. Join the voice channel\n2. Start your game\n3. Have fun!",
+            inline=False
+        )
+        
+        await match_channel.send(embed=welcome_embed)
+        
+    except Exception as e:
+        await ctx.send(f"❌ Error creating match channels: {e}")
+
 # Stats command
 @bot.command(name='stats')
 async def stats(ctx, member: discord.Member = None):
@@ -1805,6 +2199,159 @@ async def stats(ctx, member: discord.Member = None):
         await ctx.send(embed=embed)
     else:
         await ctx.send(f"❌ No stats found for {target_user.mention}. Use `/rank` to initialize your profile.")
+
+# Additional traditional commands
+@bot.command(name='rank')
+async def rank_cmd(ctx):
+    """Display your current rank and stats"""
+    add_or_update_player(ctx.author)
+    user_id = str(ctx.author.id)
+    
+    c.execute("SELECT username, mmr, wins, losses FROM players WHERE id = ?", (user_id,))
+    result = c.fetchone()
+    
+    if result:
+        username, mmr, wins, losses = result
+        
+        # Calculate rank position
+        c.execute("SELECT COUNT(*) FROM players WHERE mmr > ?", (mmr,))
+        rank_position = c.fetchone()[0] + 1
+        
+        # Get total players
+        c.execute("SELECT COUNT(*) FROM players")
+        total_players = c.fetchone()[0]
+        
+        total_games = wins + losses
+        win_rate = (wins / total_games * 100) if total_games > 0 else 0
+        
+        embed = discord.Embed(
+            title=f"📊 {username}'s Rank & Stats",
+            description=f"**Rank #{rank_position}** out of {total_players} players",
+            color=discord.Color.blue()
+        )
+        
+        embed.add_field(name="🏆 MMR", value=f"**{mmr}**", inline=True)
+        embed.add_field(name="🎮 Wins", value=f"**{wins}**", inline=True)
+        embed.add_field(name="💔 Losses", value=f"**{losses}**", inline=True)
+        embed.add_field(name="📈 Win Rate", value=f"**{win_rate:.1f}%**", inline=True)
+        embed.add_field(name="🎯 Total Games", value=f"**{total_games}**", inline=True)
+        embed.add_field(name="🌍 Server", value="**MENA**", inline=True)
+        
+        # Add rank tier
+        if mmr >= 1600:
+            tier = "🥇 Champion"
+        elif mmr >= 1400:
+            tier = "🥈 Master"
+        elif mmr >= 1200:
+            tier = "🥉 Diamond"
+        elif mmr >= 1000:
+            tier = "🏅 Gold"
+        else:
+            tier = "🎖️ Silver"
+        
+        embed.add_field(name="🏆 Tier", value=tier, inline=True)
+        embed.add_field(name="🎮 Queue", value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)", inline=True)
+        
+        embed.set_footer(text=f"Use !top to see the leaderboard • Current queue: {TEAM_SIZE}v{TEAM_SIZE}")
+        
+        await ctx.send(embed=embed)
+
+@bot.command(name='top')
+async def top_cmd(ctx):
+    """Display leaderboard of active players"""
+    # Get only players who have played at least one match
+    c.execute("""
+        SELECT username, mmr, wins, losses 
+        FROM players 
+        WHERE wins > 0 OR losses > 0 
+        ORDER BY mmr DESC 
+        LIMIT 10
+    """)
+    
+    top_players = c.fetchall()
+    
+    if top_players:
+        embed = discord.Embed(
+            title="🏆 HeatSeeker Leaderboard - Top 10",
+            description="**Active Players Only**",
+            color=discord.Color.gold()
+        )
+        
+        leaderboard_text = ""
+        for i, (username, mmr, wins, losses) in enumerate(top_players):
+            medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else f"**{i+1}.**"
+            total_games = wins + losses
+            win_rate = (wins / total_games * 100) if total_games > 0 else 0
+            
+            leaderboard_text += f"{medal} **{username}** - {mmr} MMR\n"
+            leaderboard_text += f"     W: {wins} | L: {losses} | WR: {win_rate:.1f}%\n\n"
+        
+        embed.add_field(name="🎯 Top Players", value=leaderboard_text, inline=False)
+        
+        embed.add_field(name="🌍 Server", value="**MENA** (Middle East & North Africa)", inline=True)
+        embed.add_field(name="🎮 Current Queue", value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)", inline=True)
+        
+        embed.set_footer(text=f"Showing {len(top_players)} players • Only players who have played matches are shown")
+        
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            title="🏆 HeatSeeker Leaderboard",
+            description="**No active players found!**\n\nPlay some matches to appear on the leaderboard.",
+            color=discord.Color.gold()
+        )
+        embed.add_field(name="🌍 Server", value="**MENA** (Middle East & North Africa)", inline=True)
+        embed.add_field(name="🎮 Current Queue", value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)", inline=True)
+        embed.set_footer(text="Leaderboard shows only players who have participated in matches")
+        await ctx.send(embed=embed)
+
+@bot.command(name='commands')
+async def help_cmd(ctx):
+    """Display all available commands"""
+    embed = discord.Embed(
+        title="🎮 HeatSeeker Bot Commands",
+        description="**Complete Command List - Traditional & Slash Commands**",
+        color=discord.Color.blue()
+    )
+    
+    # Basic commands
+    embed.add_field(
+        name="📊 Player Commands",
+        value="**Traditional:**\n`!rank` - Your rank and stats\n`!top` - Top 10 leaderboard\n`!stats @user` - Player stats\n`!commands` - Show all commands\n\n**Slash:**\n`/rank` - Your rank and stats\n`/top` - Top 10 leaderboard\n`/stats @user` - Player stats\n`/help` - Show all commands",
+        inline=False
+    )
+    
+    # Queue commands
+    embed.add_field(
+        name="🎯 Queue Commands",
+        value="**Use buttons in queue channel or:**\n`/queue` - Join queue\n`/leave` - Leave queue\n`/win team:1` or `/win team:2` - Report match result",
+        inline=False
+    )
+    
+    # Admin commands
+    embed.add_field(
+        name="⚙️ Admin Commands",
+        value="**Traditional:**\n`!queueplayer 2` - Set to 1v1\n`!queueplayer 4` - Set to 2v2\n`!queueplayer 6` - Set to 3v3\n`!setleaderboard` - Set leaderboard channel\n`!creatematch HSM1` - Create custom match\n\n**Slash:**\n`/queueplayer players:2` - Set queue size\n`/set_leaderboard` - Set leaderboard channel\n`/create_match match_name:HSM1` - Create custom match\n`/setup` - Create queue system\n`/cancel_queue` - Cancel queue\n`/reset_queue` - Reset queue\n`/admin_match` - Admin panel\n`/game_log` - Game history",
+        inline=False
+    )
+    
+    # Private chat
+    embed.add_field(
+        name="🔒 Private Chat",
+        value="`/private` - Create private HSM chat",
+        inline=False
+    )
+    
+    # Current configuration
+    embed.add_field(
+        name="🎮 Current Configuration",
+        value=f"**Queue Size:** {QUEUE_SIZE} players\n**Team Size:** {TEAM_SIZE}v{TEAM_SIZE}\n**Server:** MENA (Middle East & North Africa)",
+        inline=False
+    )
+    
+    embed.set_footer(text="Use ! for traditional commands or / for slash commands")
+    
+    await ctx.send(embed=embed)
 
 # Queue system commands
 @bot.tree.command(name='queue', description='Join the 2v2 queue')
@@ -2026,12 +2573,16 @@ def create_balanced_teams(players):
     # Sort players by MMR
     sorted_players = sorted(players, key=lambda x: x['mmr'], reverse=True)
     
-    # Try different combinations to find the most balanced
+    # Calculate team size based on queue configuration
+    team_size = TEAM_SIZE
+    
+    logger.info(f"TEAM CREATION: Creating balanced teams with {team_size} players per team from {len(players)} total players")
+    
+    # Generate all possible team combinations
     best_diff = float('inf')
     best_teams = None
     
-    # Generate all possible team combinations
-    for team1_combo in combinations(sorted_players, 2):
+    for team1_combo in combinations(sorted_players, team_size):
         team1 = list(team1_combo)
         team2 = [p for p in sorted_players if p not in team1]
         
@@ -2042,6 +2593,10 @@ def create_balanced_teams(players):
         if diff < best_diff:
             best_diff = diff
             best_teams = (team1, team2)
+    
+    logger.info(f"TEAM CREATION: Best MMR difference: {best_diff}")
+    logger.info(f"TEAM CREATION: Team1 players: {[p['username'] for p in best_teams[0]]}")
+    logger.info(f"TEAM CREATION: Team2 players: {[p['username'] for p in best_teams[1]]}")
     
     return best_teams
 
@@ -2296,21 +2851,36 @@ async def report_win(interaction: discord.Interaction, team: int):
 
 def calculate_mmr_changes(winning_team, losing_team):
     """Calculate MMR changes based on team averages"""
-    avg_winner_mmr = sum(p['mmr'] for p in winning_team) / len(winning_team)
-    avg_loser_mmr = sum(p['mmr'] for p in losing_team) / len(losing_team)
+    logger.info(f"MMR CALCULATION: Winning team size={len(winning_team)}, Losing team size={len(losing_team)}")
     
-    # Basic MMR calculation (can be refined)
-    base_change = 25
-    mmr_diff = avg_winner_mmr - avg_loser_mmr
+    # Safety check for empty teams
+    if len(winning_team) == 0 or len(losing_team) == 0:
+        logger.error(f"MMR CALCULATION: Empty team detected! Winning={len(winning_team)}, Losing={len(losing_team)}")
+        return {'winners': 25, 'losers': -25}  # Default MMR change
     
-    if mmr_diff > 0:  # Favorites won
-        winner_gain = max(10, base_change - mmr_diff // 10)
-        loser_loss = -winner_gain
-    else:  # Underdogs won
-        winner_gain = min(40, base_change + abs(mmr_diff) // 10)
-        loser_loss = -winner_gain
-    
-    return {'winners': winner_gain, 'losers': loser_loss}
+    try:
+        avg_winner_mmr = sum(p['mmr'] for p in winning_team) / len(winning_team)
+        avg_loser_mmr = sum(p['mmr'] for p in losing_team) / len(losing_team)
+        
+        logger.info(f"MMR CALCULATION: Winner avg={avg_winner_mmr:.1f}, Loser avg={avg_loser_mmr:.1f}")
+        
+        # Basic MMR calculation (can be refined)
+        base_change = 25
+        mmr_diff = avg_winner_mmr - avg_loser_mmr
+        
+        if mmr_diff > 0:  # Favorites won
+            winner_gain = max(10, base_change - mmr_diff // 10)
+            loser_loss = -winner_gain
+        else:  # Underdogs won
+            winner_gain = min(40, base_change + abs(mmr_diff) // 10)
+            loser_loss = -winner_gain
+        
+        logger.info(f"MMR CALCULATION: Winner gain={winner_gain}, Loser loss={loser_loss}")
+        return {'winners': winner_gain, 'losers': loser_loss}
+        
+    except Exception as e:
+        logger.error(f"MMR CALCULATION ERROR: {e}")
+        return {'winners': 25, 'losers': -25}  # Default MMR change
 
 @bot.command(name='cancel')
 async def cancel_match(ctx):
@@ -2643,6 +3213,336 @@ async def private_chat_command(interaction: discord.Interaction):
     view = PrivateChatView()
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
+# Set Queue Players Command
+@bot.tree.command(name='queueplayer', description='Set the number of players for the queue (2=1v1, 4=2v2, 6=3v3, etc.)')
+async def set_queue_players(interaction: discord.Interaction, players: int):
+    """Set the number of players for the queue system"""
+    
+    # Check if user is admin
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ Only administrators can change queue settings!", ephemeral=True)
+        return
+    
+    # Validate player count
+    if players < 2 or players > 20:
+        await interaction.response.send_message("❌ Number of players must be between 2 and 20!", ephemeral=True)
+        return
+    
+    if players % 2 != 0:
+        await interaction.response.send_message("❌ Number of players must be even (2, 4, 6, 8, etc.)!", ephemeral=True)
+        return
+    
+    # Update global queue configuration
+    global QUEUE_SIZE, TEAM_SIZE
+    QUEUE_SIZE = players
+    TEAM_SIZE = players // 2
+    
+    # Clear current queue if any
+    global player_queue
+    if player_queue:
+        player_queue.clear()
+    
+    # Create configuration embed
+    embed = discord.Embed(
+        title="⚙️ Queue Configuration Updated!",
+        description=f"Queue system has been reconfigured successfully",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="🎯 New Configuration",
+        value=f"**Total Players:** {QUEUE_SIZE}\n**Team Size:** {TEAM_SIZE}v{TEAM_SIZE}\n**Teams:** 2 teams",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Status",
+        value="✅ **Active** - Players can now join the queue",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🔄 Queue Reset",
+        value="Current queue has been cleared\nPlayers need to rejoin with new configuration",
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Configuration changed by {interaction.user.display_name}")
+    
+    await interaction.response.send_message(embed=embed)
+    
+    # Update queue display if queue channel exists
+    queue_channel = discord.utils.get(interaction.guild.channels, name=QUEUE_CHANNEL_NAME)
+    if queue_channel:
+        await update_queue_display(queue_channel)
+    
+    # Log the change
+    logger.info(f"Queue configuration changed to {TEAM_SIZE}v{TEAM_SIZE} ({QUEUE_SIZE} players) by {interaction.user.display_name}")
+
+# Create Custom Match Command
+@bot.tree.command(name='create_match', description='Create a custom match with automatic HSM number')
+async def create_match_command(interaction: discord.Interaction, match_name: str):
+    """Create a custom match with automatic sequential HSM number"""
+    
+    # Check if user is admin
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ Only administrators can create custom matches!", ephemeral=True)
+        return
+    
+    # Generate next HSM number automatically
+    hsm_number = generate_match_hsm_number()
+    if not hsm_number:
+        await interaction.response.send_message("❌ Unable to generate HSM number!", ephemeral=True)
+        return
+    
+    # Create embed for match creation
+    embed = discord.Embed(
+        title="🎮 Custom Match Created!",
+        description=f"**Match HSM{hsm_number}** is ready for players!",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="🏷️ Match Name",
+        value=f"**HSM{hsm_number}**",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Status",
+        value="**Waiting for players**",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🎯 How Players Join",
+        value=f"1. Players type: **HSM{hsm_number}**\n2. Join the match channels\n3. Start playing!",
+        inline=False
+    )
+    
+    # Get or create match category
+    category = discord.utils.get(interaction.guild.categories, name=MATCH_CATEGORY_NAME)
+    if not category:
+        category = await interaction.guild.create_category(
+            name=MATCH_CATEGORY_NAME,
+            reason="HeatSeeker match category"
+        )
+    
+    # Create the match channels
+    try:
+        # Delete existing channels with same name to prevent duplicates
+        existing_channel = discord.utils.get(interaction.guild.channels, name=f"hsm{hsm_number}")
+        if existing_channel:
+            await existing_channel.delete(reason="Recreating match channel")
+        
+        # Create text channel
+        match_channel = await interaction.guild.create_text_channel(
+            name=f"hsm{hsm_number}",
+            category=category,
+            topic=f"HeatSeeker Match HSM{hsm_number} - Custom Match - Server: MENA"
+        )
+        
+        # Create voice channel
+        voice_channel = await interaction.guild.create_voice_channel(
+            name=f"🎮 HSM{hsm_number} - Game Room",
+            category=category,
+            user_limit=4
+        )
+        
+        embed.add_field(
+            name="📍 Match Channels",
+            value=f"**Text:** {match_channel.mention}\n**Voice:** {voice_channel.mention}",
+            inline=False
+        )
+        
+        embed.set_footer(text="Match channels created successfully!")
+        
+        await interaction.response.send_message(embed=embed)
+        
+        # Send welcome message to match channel
+        welcome_embed = discord.Embed(
+            title=f"🎮 Welcome to Match HSM{hsm_number}!",
+            description="**Custom match created by admin**\n\nPlayers can now join and start playing!",
+            color=discord.Color.purple()
+        )
+        
+        welcome_embed.add_field(
+            name="🌍 Server Region",
+            value="**MENA** (Middle East & North Africa)",
+            inline=True
+        )
+        
+        welcome_embed.add_field(
+            name="🎯 Match Name",
+            value=f"**HSM{hsm_number}**",
+            inline=True
+        )
+        
+        welcome_embed.add_field(
+            name="📝 Instructions",
+            value="1. Join the voice channel\n2. Start your game\n3. Have fun!",
+            inline=False
+        )
+        
+        await match_channel.send(embed=welcome_embed)
+        
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Error creating match channels: {e}", ephemeral=True)
+
+# Auto-Leaderboard System
+@tasks.loop(minutes=30)  # Updates every 30 minutes
+async def update_leaderboard():
+    """Automatically update leaderboard in designated channel"""
+    global leaderboard_channel
+    
+    if not leaderboard_channel:
+        return
+    
+    try:
+        # Get all active players (players who have played at least one match)
+        c.execute("SELECT id, username, mmr, wins, losses FROM players WHERE wins > 0 OR losses > 0 ORDER BY mmr DESC LIMIT 20")
+        players = c.fetchall()
+        
+        if not players:
+            embed = discord.Embed(
+                title="🏆 HeatSeeker Leaderboard",
+                description="No players have competed yet!\n\nJoin the queue to start ranking up!",
+                color=discord.Color.gold()
+            )
+            embed.add_field(
+                name="🌍 Server Region",
+                value="**MENA** (Middle East & North Africa)",
+                inline=True
+            )
+            embed.add_field(
+                name="🎯 Current Queue",
+                value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)",
+                inline=True
+            )
+            embed.set_footer(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        else:
+            embed = discord.Embed(
+                title="🏆 HeatSeeker Leaderboard - Top Players",
+                description="**Rankings updated automatically every 30 minutes**",
+                color=discord.Color.gold()
+            )
+            
+            leaderboard_text = ""
+            for i, (player_id, username, mmr, wins, losses) in enumerate(players[:10], 1):
+                if i == 1:
+                    rank_emoji = "🥇"
+                elif i == 2:
+                    rank_emoji = "🥈"
+                elif i == 3:
+                    rank_emoji = "🥉"
+                else:
+                    rank_emoji = f"{i}️⃣"
+                
+                total_games = wins + losses
+                win_rate = (wins / total_games * 100) if total_games > 0 else 0
+                
+                leaderboard_text += f"{rank_emoji} **{username}** - {mmr} MMR\n"
+                leaderboard_text += f"      📊 {wins}W - {losses}L ({win_rate:.1f}%)\n\n"
+            
+            embed.add_field(
+                name="🎯 Top 10 Players",
+                value=leaderboard_text,
+                inline=False
+            )
+            
+            embed.add_field(
+                name="🌍 Server Region",
+                value="**MENA** (Middle East & North Africa)",
+                inline=True
+            )
+            
+            embed.add_field(
+                name="🎮 Current Queue",
+                value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)",
+                inline=True
+            )
+            
+            embed.set_footer(text=f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Updates every 30 minutes")
+        
+        # Clear previous messages and send new leaderboard
+        async for message in leaderboard_channel.history(limit=100):
+            if message.author == bot.user:
+                await message.delete()
+        
+        await leaderboard_channel.send(embed=embed)
+        logger.info("Leaderboard updated successfully")
+        
+    except Exception as e:
+        logger.error(f"Error updating leaderboard: {e}")
+
+# Set Leaderboard Channel Command
+@bot.tree.command(name='set_leaderboard', description='Set the current channel as auto-updating leaderboard')
+async def set_leaderboard_channel(interaction: discord.Interaction):
+    """Set the current channel as leaderboard channel"""
+    
+    # Check if user is admin
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ Only administrators can set leaderboard channel!", ephemeral=True)
+        return
+    
+    global leaderboard_channel
+    leaderboard_channel = interaction.channel
+    
+    # Start the leaderboard update task
+    if not update_leaderboard.is_running():
+        update_leaderboard.start()
+    
+    embed = discord.Embed(
+        title="✅ Leaderboard Channel Set!",
+        description="This channel will now display the auto-updating leaderboard",
+        color=discord.Color.green()
+    )
+    
+    embed.add_field(
+        name="📊 Update Frequency",
+        value="**Every 30 minutes** automatically",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🌍 Server Region",
+        value="**MENA** (Middle East & North Africa)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="🎯 Current Queue",
+        value=f"**{TEAM_SIZE}v{TEAM_SIZE}** ({QUEUE_SIZE} players)",
+        inline=True
+    )
+    
+    embed.add_field(
+        name="📝 Features",
+        value="• Top 10 players by MMR\n• Win/Loss statistics\n• Auto-refresh every 30 minutes\n• Shows current queue configuration",
+        inline=False
+    )
+    
+    embed.set_footer(text="First leaderboard update will appear in a few seconds")
+    
+    await interaction.response.send_message(embed=embed)
+    
+    # Trigger immediate update
+    await update_leaderboard()
+    
+    logger.info(f"Leaderboard channel set to {interaction.channel.name} by {interaction.user.display_name}")
+
 # Help command
 @bot.tree.command(name='help', description='Show all available commands')
 async def help_command(interaction: discord.Interaction):
@@ -2682,8 +3582,18 @@ async def help_command(interaction: discord.Interaction):
     )
     
     embed.add_field(
+        name="🎮 Match Creation",
+        value="`/create_match` - Create custom match with HSM name (HSM1, HSM2, etc.)\n" +
+              "Admin only - Create matches for players to join by typing the match name",
+        inline=False
+    )
+    
+    embed.add_field(
         name="⚙️ Admin Commands",
         value="`/setup` - Create the professional queue system (Admin only)\n" +
+              "`/queueplayer` - Set queue size (2=1v1, 4=2v2, 6=3v3) (Admin only)\n" +
+              "`/create_match` - Create custom match with HSM name (Admin only)\n" +
+              "`/set_leaderboard` - Set auto-updating leaderboard channel (Admin only)\n" +
               "`/cancel_queue` - Cancel entire queue system (Admin only)\n" +
               "`/reset_queue` - Reset queue system (Admin only)\n" +
               "`/admin_match` - Admin control panel for match management (Admin only)\n" +

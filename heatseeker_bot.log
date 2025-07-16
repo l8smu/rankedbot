@@ -217,3 +217,285 @@ discord.app_commands.errors.CommandInvokeError: Command 'reset_queue' raised an 
 2025-07-14 16:00:20,425 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
 2025-07-14 16:00:20,746 [INFO] HeatSeeker: Synced 13 slash commands
 2025-07-14 18:41:59,490 [INFO] discord.gateway: Shard ID None has successfully RESUMED session 23569422a2f3033f95c629003fd1ac4f.
+2025-07-14 19:58:23,470 [INFO] discord.gateway: Shard ID None session has been invalidated.
+2025-07-15 20:11:54,702 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:11:54,718 [INFO] discord.client: logging in using static token
+2025-07-15 20:12:44,123 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:12:44,133 [INFO] discord.client: logging in using static token
+2025-07-15 20:27:11,800 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:27:11,804 [INFO] discord.client: logging in using static token
+2025-07-15 20:27:13,845 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 39fbf3b38ec54d90ce883a7a3da19567).
+2025-07-15 20:27:15,851 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:27:15,852 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:27:15,852 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:27:15,852 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:27:15,853 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:27:15,853 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:27:16,218 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:33:30,087 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:34:58,022 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:35:02,573 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:35:37,502 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:36:00,369 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:36:00,376 [INFO] discord.client: logging in using static token
+2025-07-15 20:36:01,090 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 836bd2101a1cdb2d6666d4dce364b817).
+2025-07-15 20:36:03,114 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:36:03,119 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:36:03,120 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:36:03,122 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:36:03,124 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:36:03,125 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:36:03,569 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:37:00,908 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:37:00,912 [INFO] discord.client: logging in using static token
+2025-07-15 20:37:01,406 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: b808e2b5fd0f8d324284163b13cbf042).
+2025-07-15 20:37:03,411 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:37:03,412 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:37:03,412 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:37:03,412 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:37:03,413 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:37:03,413 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:37:03,847 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:37:59,786 [INFO] HeatSeeker: Queue configuration changed to 1v1 (2 players) by Fahad.
+2025-07-15 20:39:12,633 [ERROR] discord.ui.view: Ignoring exception in view <MatchView timeout=None children=3> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='🏆 Team 1 Won' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/runner/workspace/main.py", line 237, in team1_win
+    await handle_match_result(interaction, 1, self.match_id)
+  File "/home/runner/workspace/main.py", line 433, in handle_match_result
+    mmr_changes = calculate_mmr_changes(winning_team, losing_team)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2774, in calculate_mmr_changes
+    avg_loser_mmr = sum(p['mmr'] for p in losing_team) / len(losing_team)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+ZeroDivisionError: division by zero
+2025-07-15 20:39:23,762 [ERROR] discord.ui.view: Ignoring exception in view <MatchView timeout=None children=3> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='🏆 Team 2 Won' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/runner/workspace/main.py", line 241, in team2_win
+    await handle_match_result(interaction, 2, self.match_id)
+  File "/home/runner/workspace/main.py", line 433, in handle_match_result
+    mmr_changes = calculate_mmr_changes(winning_team, losing_team)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2773, in calculate_mmr_changes
+    avg_winner_mmr = sum(p['mmr'] for p in winning_team) / len(winning_team)
+                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+ZeroDivisionError: division by zero
+2025-07-15 20:39:37,516 [ERROR] discord.ui.view: Ignoring exception in view <MatchView timeout=None children=3> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='🏆 Team 1 Won' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/discord/ui/view.py", line 435, in _scheduled_task
+    await item.callback(interaction)
+  File "/home/runner/workspace/main.py", line 237, in team1_win
+    await handle_match_result(interaction, 1, self.match_id)
+  File "/home/runner/workspace/main.py", line 433, in handle_match_result
+    mmr_changes = calculate_mmr_changes(winning_team, losing_team)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/main.py", line 2774, in calculate_mmr_changes
+    avg_loser_mmr = sum(p['mmr'] for p in losing_team) / len(losing_team)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+ZeroDivisionError: division by zero
+2025-07-15 20:40:21,285 [INFO] HeatSeeker: MATCH CANCELLED: Match #Match 7 - Cancelled by Fahad.
+2025-07-15 20:40:21,688 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 7 - Deleted match channel HSM1
+2025-07-15 20:40:21,960 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 7 - Deleted Team 1 voice channel HSM1
+2025-07-15 20:40:22,135 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 7 - Deleted Team 2 voice channel HSM1
+2025-07-15 20:42:05,967 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:42:05,975 [INFO] discord.client: logging in using static token
+2025-07-15 20:42:06,785 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: c2ef10d0021e91900bca360992c4229f).
+2025-07-15 20:42:08,797 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:42:08,799 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:42:08,800 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:42:08,800 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:42:08,801 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:42:08,802 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:42:09,051 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:44:26,261 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:44:26,266 [INFO] discord.client: logging in using static token
+2025-07-15 20:44:26,984 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: bc3be7110a939e3e3f00b1b72462fdb4).
+2025-07-15 20:44:28,987 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:44:28,988 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:44:28,988 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:44:28,988 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:44:28,989 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:44:28,989 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:44:29,223 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:45:04,746 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 8 by Fahad.
+2025-07-15 20:45:04,747 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 8
+2025-07-15 20:45:04,747 [ERROR] HeatSeeker: Error in team1_win button: division by zero
+2025-07-15 20:45:16,229 [INFO] HeatSeeker: MATCH RESULT: Processing team 2 win for match 8 by Fahad.
+2025-07-15 20:45:16,229 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 8
+2025-07-15 20:45:16,229 [ERROR] HeatSeeker: Error in team2_win button: division by zero
+2025-07-15 20:47:11,649 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:47:11,659 [INFO] discord.client: logging in using static token
+2025-07-15 20:47:13,421 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 404c1c3f5b8a2066fd330a342f054c31).
+2025-07-15 20:47:15,428 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:47:15,435 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:47:15,436 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:47:15,439 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:47:15,444 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:47:15,446 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:47:15,659 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:48:11,456 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:48:11,461 [INFO] discord.client: logging in using static token
+2025-07-15 20:48:12,068 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 60db881040d02280144ba74a35785b90).
+2025-07-15 20:48:14,071 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:48:14,071 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:48:14,071 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:48:14,071 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:48:14,072 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:48:14,072 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:48:14,469 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:48:35,828 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 9 by Fahad.
+2025-07-15 20:48:35,829 [ERROR] HeatSeeker: MATCH RESULT: Empty team data in match 9 - team1: 2, team2: 0
+2025-07-15 20:50:09,953 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:50:09,964 [INFO] discord.client: logging in using static token
+2025-07-15 20:50:10,554 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 1b88792bd729e507ae07999eae908a9e).
+2025-07-15 20:50:12,566 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:50:12,571 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:50:12,571 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:50:12,573 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-15 20:50:12,573 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:50:12,575 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:50:12,575 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:50:12,856 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:51:13,231 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:51:13,236 [INFO] discord.client: logging in using static token
+2025-07-15 20:51:13,993 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 7a430205a184a09e70cb5fa0a80d948d).
+2025-07-15 20:51:15,997 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:51:15,998 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:51:15,998 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:51:15,999 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-15 20:51:15,999 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:51:15,999 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:51:16,000 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:51:16,236 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:51:55,670 [INFO] HeatSeeker: Queue configuration changed to 1v1 (2 players) by Fahad.
+2025-07-15 20:56:35,940 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:56:35,949 [INFO] discord.client: logging in using static token
+2025-07-15 20:56:36,702 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: b45154e832a1fe172d023f0550573bed).
+2025-07-15 20:56:38,708 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:56:38,712 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:56:38,713 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:56:38,714 [INFO] HeatSeeker: RESTORE: Processing match 10 - team1: '882391937217364018,1131598001912172696', team2: ''
+2025-07-15 20:56:38,715 [WARNING] HeatSeeker: RESTORE: Match 10 has empty team data - cancelling
+2025-07-15 20:56:38,772 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 1 corrupted matches
+2025-07-15 20:56:38,773 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:56:38,775 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:56:38,775 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:56:39,166 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:57:46,636 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 20:57:46,640 [INFO] discord.client: logging in using static token
+2025-07-15 20:57:47,298 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 33f3fbb359ffb2a71c75c90aded5bb4d).
+2025-07-15 20:57:49,315 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 20:57:49,316 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 20:57:49,316 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 20:57:49,316 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-15 20:57:49,316 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 20:57:49,317 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 20:57:49,317 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 20:57:49,594 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 20:58:19,703 [INFO] HeatSeeker: Queue configuration changed to 1v1 (2 players) by Fahad.
+2025-07-15 20:59:40,020 [INFO] HeatSeeker: TEAM CREATION: Creating balanced teams with 1 players per team from 2 total players
+2025-07-15 20:59:40,021 [INFO] HeatSeeker: TEAM CREATION: Best MMR difference: 0
+2025-07-15 20:59:40,021 [INFO] HeatSeeker: TEAM CREATION: Team1 players: ['l8smu']
+2025-07-15 20:59:40,021 [INFO] HeatSeeker: TEAM CREATION: Team2 players: ['imhumam3']
+2025-07-15 20:59:46,976 [INFO] HeatSeeker: MATCH RESULT: Processing team 2 win for match 11 by Fahad.
+2025-07-15 20:59:46,976 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 11 - team1: 1, team2: 1
+2025-07-15 20:59:46,976 [INFO] HeatSeeker: MMR CALCULATION: Winning team size=1, Losing team size=1
+2025-07-15 20:59:46,976 [INFO] HeatSeeker: MMR CALCULATION: Winner avg=1000.0, Loser avg=1000.0
+2025-07-15 20:59:46,976 [INFO] HeatSeeker: MMR CALCULATION: Winner gain=25.0, Loser loss=-25.0
+2025-07-15 20:59:47,043 [INFO] HeatSeeker: MATCH COMPLETED: Match #Match 11 - Team 2 won - MMR changes: Winners +25.0, Losers -25.0
+2025-07-15 20:59:47,700 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 11 - Deleted match channel HSM1
+2025-07-15 20:59:47,934 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 11 - Deleted Team 1 voice channel HSM1
+2025-07-15 20:59:48,216 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 11 - Deleted Team 2 voice channel HSM1
+2025-07-15 21:00:00,597 [INFO] HeatSeeker: TEAM CREATION: Creating balanced teams with 1 players per team from 2 total players
+2025-07-15 21:00:00,598 [INFO] HeatSeeker: TEAM CREATION: Best MMR difference: 50
+2025-07-15 21:00:00,598 [INFO] HeatSeeker: TEAM CREATION: Team1 players: ['imhumam3']
+2025-07-15 21:00:00,598 [INFO] HeatSeeker: TEAM CREATION: Team2 players: ['l8smu']
+2025-07-15 21:00:25,213 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 12 by Fahad.
+2025-07-15 21:00:25,214 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 12 - team1: 1, team2: 1
+2025-07-15 21:00:25,214 [INFO] HeatSeeker: MMR CALCULATION: Winning team size=1, Losing team size=1
+2025-07-15 21:00:25,214 [INFO] HeatSeeker: MMR CALCULATION: Winner avg=1025.0, Loser avg=975.0
+2025-07-15 21:00:25,214 [INFO] HeatSeeker: MMR CALCULATION: Winner gain=20.0, Loser loss=-20.0
+2025-07-15 21:00:25,285 [INFO] HeatSeeker: MATCH COMPLETED: Match #Match 12 - Team 1 won - MMR changes: Winners +20.0, Losers -20.0
+2025-07-15 21:00:25,982 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 12 - Deleted match channel HSM1
+2025-07-15 21:00:26,200 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 12 - Deleted Team 1 voice channel HSM1
+2025-07-15 21:00:26,439 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 12 - Deleted Team 2 voice channel HSM1
+2025-07-15 21:03:21,788 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 21:03:21,847 [INFO] discord.client: logging in using static token
+2025-07-15 21:03:22,550 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: d866bf9ca3ab3ab17a8b2858ee9cbe6c).
+2025-07-15 21:03:24,554 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 21:03:24,566 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 21:03:24,566 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 21:03:24,567 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-15 21:03:24,567 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 21:03:24,568 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 21:03:24,568 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 21:03:24,849 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 21:03:27,027 [WARNING] discord.http: We are being rate limited. DELETE https://discord.com/api/v10/channels/1394779912690471034/messages/1394785051459195103 responded with 429. Retrying in 0.30 seconds.
+2025-07-15 21:04:02,955 [INFO] discord.gateway: Shard ID None has successfully RESUMED session 33f3fbb359ffb2a71c75c90aded5bb4d.
+2025-07-15 21:04:44,732 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-15 21:04:44,736 [INFO] discord.client: logging in using static token
+2025-07-15 21:04:45,276 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: 1ec457de07cd2eeac4a91c9d02fc4d8f).
+2025-07-15 21:04:47,279 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-15 21:04:47,280 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-15 21:04:47,280 [INFO] HeatSeeker: Sample data added to database
+2025-07-15 21:04:47,280 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-15 21:04:47,280 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-15 21:04:47,281 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-15 21:04:47,281 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-15 21:04:47,491 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-15 21:05:12,965 [INFO] HeatSeeker: Queue configuration changed to 1v1 (2 players) by Fahad.
+2025-07-15 21:05:22,448 [INFO] HeatSeeker: TEAM CREATION: Creating balanced teams with 1 players per team from 2 total players
+2025-07-15 21:05:22,448 [INFO] HeatSeeker: TEAM CREATION: Best MMR difference: 90
+2025-07-15 21:05:22,448 [INFO] HeatSeeker: TEAM CREATION: Team1 players: ['imhumam3']
+2025-07-15 21:05:22,448 [INFO] HeatSeeker: TEAM CREATION: Team2 players: ['l8smu']
+2025-07-15 21:05:32,626 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 13 by Fahad.
+2025-07-15 21:05:32,626 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 13 - team1: 1, team2: 1
+2025-07-15 21:05:32,626 [INFO] HeatSeeker: MMR CALCULATION: Winning team size=1, Losing team size=1
+2025-07-15 21:05:32,627 [INFO] HeatSeeker: MMR CALCULATION: Winner avg=1045.0, Loser avg=955.0
+2025-07-15 21:05:32,627 [INFO] HeatSeeker: MMR CALCULATION: Winner gain=16.0, Loser loss=-16.0
+2025-07-15 21:05:32,704 [INFO] HeatSeeker: MATCH COMPLETED: Match #Match 13 - Team 1 won - MMR changes: Winners +16.0, Losers -16.0
+2025-07-15 21:05:33,486 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 13 - Deleted match channel HSM1
+2025-07-15 21:05:33,703 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 13 - Deleted Team 1 voice channel HSM1
+2025-07-15 21:05:34,028 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 13 - Deleted Team 2 voice channel HSM1
+2025-07-15 21:05:52,928 [INFO] HeatSeeker: TEAM CREATION: Creating balanced teams with 1 players per team from 2 total players
+2025-07-15 21:05:52,928 [INFO] HeatSeeker: TEAM CREATION: Best MMR difference: 122
+2025-07-15 21:05:52,929 [INFO] HeatSeeker: TEAM CREATION: Team1 players: ['imhumam3']
+2025-07-15 21:05:52,929 [INFO] HeatSeeker: TEAM CREATION: Team2 players: ['l8smu']
+2025-07-15 21:06:06,491 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 14 by Fahad.
+2025-07-15 21:06:06,492 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 14 - team1: 1, team2: 1
+2025-07-15 21:06:06,492 [INFO] HeatSeeker: MMR CALCULATION: Winning team size=1, Losing team size=1
+2025-07-15 21:06:06,492 [INFO] HeatSeeker: MMR CALCULATION: Winner avg=1061.0, Loser avg=939.0
+2025-07-15 21:06:06,492 [INFO] HeatSeeker: MMR CALCULATION: Winner gain=13.0, Loser loss=-13.0
+2025-07-15 21:06:06,554 [INFO] HeatSeeker: MATCH COMPLETED: Match #Match 14 - Team 1 won - MMR changes: Winners +13.0, Losers -13.0
+2025-07-15 21:06:07,275 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 14 - Deleted match channel HSM2
+2025-07-15 21:06:07,511 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 14 - Deleted Team 1 voice channel HSM2
+2025-07-15 21:06:07,676 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 14 - Deleted Team 2 voice channel HSM2
+2025-07-16 14:12:00,625 [WARNING] discord.client: PyNaCl is not installed, voice will NOT be supported
+2025-07-16 14:12:00,691 [INFO] discord.client: logging in using static token
+2025-07-16 14:12:01,386 [INFO] discord.gateway: Shard ID None has connected to Gateway (Session ID: da0ad00e23f3a2eb221837c47f373050).
+2025-07-16 14:12:03,393 [INFO] HeatSeeker: HSM Ranked System 2#4510 has connected to Discord!
+2025-07-16 14:12:03,394 [INFO] HeatSeeker: Added 10 sample players to database
+2025-07-16 14:12:03,394 [INFO] HeatSeeker: Sample data added to database
+2025-07-16 14:12:03,395 [INFO] HeatSeeker: RESTORE: Restored 0 active matches, cancelled 0 corrupted matches
+2025-07-16 14:12:03,395 [INFO] HeatSeeker: Queue system will only work in channel: #heatseeker-queue
+2025-07-16 14:12:03,395 [INFO] HeatSeeker: Persistent views added for queue, match, and private chat systems
+2025-07-16 14:12:03,395 [INFO] HeatSeeker: Started queue timeout system - 5 minute timeout
+2025-07-16 14:12:03,713 [INFO] HeatSeeker: Synced 16 slash commands
+2025-07-16 14:12:05,914 [WARNING] discord.http: We are being rate limited. DELETE https://discord.com/api/v10/channels/1394779912690471034/messages/1394786805483835534 responded with 429. Retrying in 0.30 seconds.
+2025-07-16 14:12:38,663 [INFO] HeatSeeker: Queue configuration changed to 2v2 (4 players) by Fahad.
+2025-07-16 14:14:32,543 [INFO] HeatSeeker: TEAM CREATION: Creating balanced teams with 2 players per team from 4 total players
+2025-07-16 14:14:32,545 [INFO] HeatSeeker: TEAM CREATION: Best MMR difference: 74
+2025-07-16 14:14:32,545 [INFO] HeatSeeker: TEAM CREATION: Team1 players: ['titanium2114', 'exotic002']
+2025-07-16 14:14:32,545 [INFO] HeatSeeker: TEAM CREATION: Team2 players: ['9ly.', 'l8smu']
+2025-07-16 14:15:36,820 [INFO] HeatSeeker: MATCH RESULT: Processing team 1 win for match 15 by TiTaNiuM
+2025-07-16 14:15:36,821 [INFO] HeatSeeker: MATCH RESULT: All validations passed for match 15 - team1: 2, team2: 2
+2025-07-16 14:15:36,821 [INFO] HeatSeeker: MMR CALCULATION: Winning team size=2, Losing team size=2
+2025-07-16 14:15:36,821 [INFO] HeatSeeker: MMR CALCULATION: Winner avg=1000.0, Loser avg=963.0
+2025-07-16 14:15:36,821 [INFO] HeatSeeker: MMR CALCULATION: Winner gain=22.0, Loser loss=-22.0
+2025-07-16 14:15:37,175 [INFO] HeatSeeker: MATCH COMPLETED: Match #Match 15 - Team 1 won - MMR changes: Winners +22.0, Losers -22.0
+2025-07-16 14:15:37,958 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 15 - Deleted match channel HSM3
+2025-07-16 14:15:38,213 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 15 - Deleted Team 1 voice channel HSM3
+2025-07-16 14:15:38,414 [INFO] HeatSeeker: MATCH CLEANUP: Match #Match 15 - Deleted Team 2 voice channel HSM3
