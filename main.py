@@ -4286,4 +4286,5 @@ if __name__ == "__main__":
     
     print("🤖 Starting Discord Bot with Slash Commands...")
     print("📡 Connecting to Discord...")
+    print("Bot Online")
     bot.run(token)
