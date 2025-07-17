@@ -605,7 +605,7 @@ async def handle_ping_role(interaction):
     global ping_cooldowns
 
     # حط هنا الـ ID الخاص بقناة الكيو فقط
-    QUEUE_CHANNEL_ID = 1395169477473075381  # ← استبدل هذا بالـ ID الحقيقي
+    QUEUE_CHANNEL_ID = 1395056775233011752  # ← استبدل هذا بالـ ID الحقيقي
 
     # تأكد أننا في الشات الصحيح
     if interaction.channel.id != QUEUE_CHANNEL_ID:
