@@ -331,16 +331,16 @@ def restore_active_matches():
 # Add sample data for demonstration
 def add_sample_data():
     """Add sample players for demonstration"""
-    sample_players = [('123456789', 'PlayerOne', 1200, 15, 5),
-                      ('987654321', 'TopGamer', 1450, 25, 8),
-                      ('456789123', 'SkillMaster', 1350, 20, 12),
-                      ('789123456', 'ProPlayer', 1100, 18, 15),
-                      ('321654987', 'GameChamp', 1300, 22, 10),
-                      ('654321789', 'EliteGamer', 1500, 30, 5),
-                      ('147258369', 'RankClimber', 1250, 16, 9),
-                      ('963852741', 'CompetitivePro', 1400, 28, 7),
-                      ('258741963', 'StrategyMaster', 1180, 14, 11),
-                      ('741852963', 'LeaderboardKing', 1600, 35, 3)]
+    sample_players = [('123456789', 'Empty', 1200, 15, 5),
+                      ('987654321', 'Empty', 1450, 25, 8),
+                      ('456789123', 'Empty', 1350, 20, 12),
+                      ('789123456', 'Empty', 1100, 18, 15),
+                      ('321654987', 'Empty', 1300, 22, 10),
+                      ('654321789', 'Empty', 1500, 30, 5),
+                      ('147258369', 'Empty', 1250, 16, 9),
+                      ('963852741', 'Empty', 1400, 28, 7),
+                      ('258741963', 'Empty', 1180, 14, 11),
+                      ('741852963', 'Empty', 1600, 35, 3)]
 
     for player_id, username, mmr, wins, losses in sample_players:
         c.execute("SELECT * FROM players WHERE id = ?", (player_id, ))
@@ -487,45 +487,45 @@ async def update_player_rank_role(guild, user_id, new_mmr):
                 )
 
                 # Send DM notification about rank change (only for significant changes)
-                if not current_rank_role or current_rank_role.name != new_role.name:
-                    try:
-                        embed = discord.Embed(
-                            title="🎖️ Rank Updated!",
-                            description=
-                            f"**Your rank has been updated automatically!**",
-                            color=discord.Color.gold())
-                        embed.add_field(
-                            name="New Rank",
-                            value=f"{new_rank['emoji']} **{new_rank['name']}**",
-                            inline=True)
-                        embed.add_field(name="Current MMR",
-                                        value=f"**{new_mmr}**",
-                                        inline=True)
-                        embed.add_field(
-                            name="MMR Range",
-                            value=
-                            f"{new_rank['min_mmr']} - {new_rank['max_mmr']}",
-                            inline=True)
-                        embed.add_field(
-                            name="🔄 Auto-Update System",
-                            value=
-                            "Your rank is automatically updated every 10 minutes!",
-                            inline=False)
-                        embed.set_footer(
-                            text="Keep playing to climb higher ranks!")
+                #if not current_rank_role or current_rank_role.name != new_role.name:
+                 #   try:
+                  #      embed = discord.Embed(
+                   #         title="🎖️ Rank Updated!",
+                    #        description=
+                     #       f"**Your rank has been updated automatically!**",
+                      #      color=discord.Color.gold())
+                       # embed.add_field(
+                        #    name="New Rank",
+                         #   value=f"{new_rank['emoji']} **{new_rank['name']}**",
+                          #  inline=True)
+                        #embed.add_field(name="Current MMR",
+                         #               value=f"**{new_mmr}**",
+                          #              inline=True)
+                        #embed.add_field(
+                         #   name="MMR Range",
+                          #  value=
+                           # f"{new_rank['min_mmr']} - {new_rank['max_mmr']}",
+                            #inline=True)
+                        #embed.add_field(
+                         #   name="🔄 Auto-Update System",
+                          #  value=
+                           # "Your rank is automatically updated every 10 minutes!",
+                            #inline=False)
+                        #embed.set_footer(
+                         #   text="Keep playing to climb higher ranks!")
 
-                        await member.send(embed=embed)
-                        logger.info(
-                            f"RANK SYSTEM: Sent rank update DM to {member.display_name}"
+                        #await member.send(embed=embed)
+                        #logger.info(
+                         #   f"RANK SYSTEM: Sent rank update DM to {member.display_name}"
                         )
-                    except discord.Forbidden:
-                        logger.info(
+                   # except discord.Forbidden:
+                    #    logger.info(
                             f"RANK SYSTEM: Could not send DM to {member.display_name} (DMs disabled)"
-                        )
-                    except Exception as e:
-                        logger.warning(
-                            f"RANK SYSTEM: Failed to send DM to {member.display_name}: {e}"
-                        )
+                     #   )
+                    #except Exception as e:
+                     #   logger.warning(
+                      #      f"RANK SYSTEM: Failed to send DM to {member.display_name}: {e}"
+                       # )
 
             except discord.Forbidden:
                 logger.error(
@@ -2428,57 +2428,6 @@ def add_or_update_player(user):
         c.execute("UPDATE players SET username = ? WHERE id = ?",
                   (user.display_name, str(user.id)))
         conn.commit()
-
-@bot.tree.command(
-    name="set_mmr",
-    description="Set the MMR for all members (Admin only)"
-)
-@app_commands.default_permissions(administrator=True)
-async def set_mmr_command(interaction: discord.Interaction):
-    """Admin command to set MMR for all members via modal input"""
-    class SetMMRView(discord.ui.View):
-        @discord.ui.button(label="Set MMR", style=discord.ButtonStyle.primary)
-        async def set_mmr_button(self, button_interaction: discord.Interaction, button: discord.ui.Button):
-            if button_interaction.user != interaction.user:
-                await button_interaction.response.send_message(
-                    "❌ Only the admin who used the command can set the MMR.", ephemeral=True)
-                return
-
-            class MMRModal(discord.ui.Modal, title="Set MMR for All Members"):
-                mmr_value = discord.ui.TextInput(
-                    label="MMR Value (0-799)",
-                    placeholder="Enter the MMR to set for all members",
-                    min_length=1,
-                    max_length=3,
-                    required=True
-                )
-
-                async def on_submit(self, modal_interaction: discord.Interaction):
-                    try:
-                        value = int(self.mmr_value.value)
-                        if value < 0 or value > 799:
-                            await modal_interaction.response.send_message(
-                                "❌ Please enter a number between 0 and 799.", ephemeral=True)
-                            return
-
-                        # Update all players in the database
-                        c.execute("UPDATE players SET mmr = ?", (value,))
-                        conn.commit()
-
-                        await modal_interaction.response.send_message(
-                            f"✅ Set MMR for all members to **{value}**.", ephemeral=True)
-                    except Exception as e:
-                        await modal_interaction.response.send_message(
-                            f"❌ Error: {e}", ephemeral=True)
-
-            await button_interaction.response.send_modal(MMRModal())
-
-    embed = discord.Embed(
-        title="Set MMR for All Members",
-        description="Choose the MMR you want to set for all members (0-799).",
-        color=discord.Color.orange()
-    )
-    await interaction.response.send_message(embed=embed, view=SetMMRView(), ephemeral=True)
 
 
 # أمر عرض الرانك
@@ -5473,6 +5422,57 @@ async def reset_season(interaction: discord.Interaction):
 
         await interaction.followup.send(embed=error_embed)
 
+
+@bot.tree.command(
+    name="set_mmr",
+    description="Set the MMR for all members (Admin only)"
+)
+@app_commands.default_permissions(administrator=True)
+async def set_mmr_command(interaction: discord.Interaction):
+    """Admin command to set MMR for all members via modal input"""
+    class SetMMRView(discord.ui.View):
+        @discord.ui.button(label="Set MMR", style=discord.ButtonStyle.primary)
+        async def set_mmr_button(self, button_interaction: discord.Interaction, button: discord.ui.Button):
+            if button_interaction.user != interaction.user:
+                await button_interaction.response.send_message(
+                    "❌ Only the admin who used the command can set the MMR.", ephemeral=True)
+                return
+
+            class MMRModal(discord.ui.Modal, title="Set MMR for All Members"):
+                mmr_value = discord.ui.TextInput(
+                    label="MMR Value (0-799)",
+                    placeholder="Enter the MMR to set for all members",
+                    min_length=1,
+                    max_length=3,
+                    required=True
+                )
+
+                async def on_submit(self, modal_interaction: discord.Interaction):
+                    try:
+                        value = int(self.mmr_value.value)
+                        if value < 0 or value > 799:
+                            await modal_interaction.response.send_message(
+                                "❌ Please enter a number between 0 and 799.", ephemeral=True)
+                            return
+
+                        # Update all players in the database
+                        c.execute("UPDATE players SET mmr = ?", (value,))
+                        conn.commit()
+
+                        await modal_interaction.response.send_message(
+                            f"✅ Set MMR for all members to **{value}**.", ephemeral=True)
+                    except Exception as e:
+                        await modal_interaction.response.send_message(
+                            f"❌ Error: {e}", ephemeral=True)
+
+            await button_interaction.response.send_modal(MMRModal())
+
+    embed = discord.Embed(
+        title="Set MMR for All Members",
+        description="Choose the MMR you want to set for all members (0-799).",
+        color=discord.Color.orange()
+    )
+    await interaction.response.send_message(embed=embed, view=SetMMRView(), ephemeral=True)
 
 # Help command - ADMIN ONLY
 @bot.tree.command(name='help',

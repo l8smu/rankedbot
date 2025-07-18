@@ -1,0 +1,98 @@
+import discord
+from discord.ext import commands
+
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+# رتب الـMMR
+RANK_ROLES = {
+    "SILVER": {
+        "role_name": "SILVER SEEKER",
+        "min_mmr": 800,
+        "max_mmr": 949,
+        "name": "〣 SILVER SEEKER",
+        "emoji": "<:1SILVER:1224325616535339041>",
+        "color": 0xBDBDBD
+    },
+    "PLATINUM": {
+        "role_name": "PLATINUM SEEKER",
+        "min_mmr": 950,
+        "max_mmr": 1099,
+        "name": "〣 PLATINUM SEEKER",
+        "emoji": "<:2PLATINUM:1224327801075925005>",
+        "color": 0x3DDBEE
+    },
+    "CRYSTAL": {
+        "role_name": "CRYSTAL SEEKER",
+        "min_mmr": 1100,
+        "max_mmr": 1249,
+        "name": "〣 CRYSTAL SEEKER",
+        "emoji": "<:3CRYSTAL:1224327804351545345>",
+        "color": 0x9BC2F1
+    },
+    "ELITE": {
+        "role_name": "ELITE SEEKER",
+        "min_mmr": 1250,
+        "max_mmr": 1449,
+        "name": "〣 ELITE SEEKER",
+        "emoji": "<:4ELITE:1224327806847160361>",
+        "color": 0x3BF695
+    },
+    "MASTER": {
+        "role_name": "MASTER SEEKER",
+        "min_mmr": 1450,
+        "max_mmr": 1699,
+        "name": "〣 MASTER SEEKER",
+        "emoji": "<:5Mastermin:1224327858445615204>",
+        "color": 0xFF0000
+    },
+    "LEGENDARY": {
+        "role_name": "LEGENDARY SEEKER",
+        "min_mmr": 1700,
+        "max_mmr": 9999,
+        "name": "〣 LEGENDARY SEEKER",
+        "emoji": "<:6LEGENDARYmin:1224327860437913610>",
+        "color": 0xF3C900
+    }
+}
+
+# دالة تجيب الرتبة المناسبة
+def get_rank_role(mmr):
+    for rank_data in RANK_ROLES.values():
+        if rank_data['min_mmr'] <= mmr <= rank_data['max_mmr']:
+            return rank_data
+    return None
+
+# مثال: أمر !updaterank [mmr]
+@bot.command()
+async def updaterank(ctx, mmr: int):
+    member = ctx.author
+    guild = ctx.guild
+
+    # حدد الرتبة المناسبة
+    new_rank = get_rank_role(mmr)
+    if not new_rank:
+        await ctx.send("ما حصلت رتبة مناسبة للنقاط.")
+        return
+
+    role_name = new_rank['role_name']
+    role = discord.utils.get(guild.roles, name=role_name)
+
+    # إذا ما حصل الرتبة في السيرفر
+    if not role:
+        await ctx.send(f"⚠️ الرتبة '{role_name}' غير موجودة في السيرفر.")
+        return
+
+    # حذف كل الرتب القديمة من نفس النظام
+    roles_to_remove = [discord.utils.get(guild.roles, name=r['role_name']) for r in RANK_ROLES.values()]
+    for r in roles_to_remove:
+        if r in member.roles:
+            await member.remove_roles(r)
+
+    # إضافة الرتبة الجديدة
+    await member.add_roles(role)
+    await ctx.send(f"{new_rank['emoji']} تم تحديث رتبتك إلى **{new_rank['name']}** بناءً على نقاطك: `{mmr}`")
+
+# شغل البوت
+bot.run("توكن البوت هنا")
