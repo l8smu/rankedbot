@@ -8,61 +8,53 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 # نفس دالة الرانك السابقة
 RANK_ROLES = {
-    "UNRANKED": {
-        "role_name": "UNRANKED",
-        "min_mmr": 0,
-        "max_mmr": 799,
-        "name": "〣 UNRANKED",
-        "emoji": "<:0UNRANKED:1395077317407277216>",
-        "color": 0x808080
-    },
     "SILVER": {
         "role_name": "SILVER SEEKER",
         "min_mmr": 800,
         "max_mmr": 949,
         "name": "〣 SILVER SEEKER",
-        "emoji": "<:1SILVER:1395077319563149422>",
-        "color": 0xC0C0C0
+        "emoji": "<:1SILVER:1224325616535339041>",
+        "color": 0xBDBDBD
     },
     "PLATINUM": {
         "role_name": "PLATINUM SEEKER",
         "min_mmr": 950,
         "max_mmr": 1099,
         "name": "〣 PLATINUM SEEKER",
-        "emoji": "<:2PLATINUM:1395077322213822564>",
-        "color": 0x00FFFF
+        "emoji": "<:2PLATINUM:1224327801075925005>",
+        "color": 0x3DDBEE
     },
     "CRYSTAL": {
         "role_name": "CRYSTAL SEEKER",
         "min_mmr": 1100,
         "max_mmr": 1249,
         "name": "〣 CRYSTAL SEEKER",
-        "emoji": "<:3CRYSTAL:1395077324382404719>",
-        "color": 0x9932CC
+        "emoji": "<:3CRYSTAL:1224327804351545345>",
+        "color": 0x9BC2F1
     },
     "ELITE": {
         "role_name": "ELITE SEEKER",
         "min_mmr": 1250,
         "max_mmr": 1449,
         "name": "〣 ELITE SEEKER",
-        "emoji": "<:4ELITE:1395077326416642078>",
-        "color": 0xFFD700
+        "emoji": "<:4ELITE:1224327806847160361>",
+        "color": 0x3BF695
     },
     "MASTER": {
         "role_name": "MASTER SEEKER",
         "min_mmr": 1450,
         "max_mmr": 1699,
         "name": "〣 MASTER SEEKER",
-        "emoji": "<:5Mastermin:1395077330963267776>",
-        "color": 0xFF4500
+        "emoji": "<:5Mastermin:1224327858445615204>",
+        "color": 0xFF0000
     },
     "LEGENDARY": {
         "role_name": "LEGENDARY SEEKER",
         "min_mmr": 1700,
         "max_mmr": 9999,
         "name": "〣 LEGENDARY SEEKER",
-        "emoji": "<:6LEGENDARYmin:1395077334003876012>",
-        "color": 0xFF0000
+        "emoji": "<:6LEGENDARYmin:1224327860437913610>",
+        "color": 0xF3C900
     }
 }
 
