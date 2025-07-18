@@ -2422,7 +2422,7 @@ def add_or_update_player(user):
         # New player starts with placement matches
         c.execute(
             "INSERT INTO players (id, username, mmr, placement_matches_remaining, is_placed) VALUES (?, ?, ?, ?, ?)",
-            (str(user.id), user.display_name, 1000, 5, 0))
+            (str(user.id), user.display_name, 1250, 5, 0))
         conn.commit()
         logger.info(
             f"NEW PLAYER: {user.display_name} created with 5 placement matches"
