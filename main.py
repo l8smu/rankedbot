@@ -5035,7 +5035,7 @@ async def reset_season(interaction: discord.Interaction):
                 self.starting_mmr = discord.ui.TextInput(
                     label="نقطة البداية (MMR)",
                     placeholder="أدخل النقاط الابتدائية (مثال: 1200)",
-                    default="1000",
+                    default="1250",
                     min_length=3,
                     max_length=4,
                     required=True)
