@@ -4812,7 +4812,7 @@ async def create_match_command(interaction: discord.Interaction,
 
 
 # Auto-Leaderboard System
-@tasks.loop(minutes=30)  # Updates every 30 minutes
+@tasks.loop(minutes=10)  # Updates every 10 minutes
 async def update_leaderboard():
     """Automatically update leaderboard in designated channel"""
     global leaderboard_channel
@@ -4939,7 +4939,7 @@ async def set_leaderboard_channel(interaction: discord.Interaction):
         color=discord.Color.green())
 
     embed.add_field(name="📊 Update Frequency",
-                    value="**Every 30 minutes** automatically",
+                    value="**Every 10 minutes** automatically",
                     inline=True)
 
     embed.add_field(name="🌍 Server Region",
@@ -4954,7 +4954,7 @@ async def set_leaderboard_channel(interaction: discord.Interaction):
     embed.add_field(
         name="📝 Features",
         value=
-        "• Top 10 players by MMR\n• Win/Loss statistics\n• Auto-refresh every 30 minutes\n• Shows current queue configuration",
+        "• Top 10 players by MMR\n• Win/Loss statistics\n• Auto-refresh every 10 minutes\n• Shows current queue configuration",
         inline=False)
 
     embed.set_footer(
