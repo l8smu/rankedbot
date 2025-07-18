@@ -54,6 +54,17 @@ MATCH_CATEGORY_NAME = "HeatSeeker Matches"  # Category for match channels
 PRIVATE_CATEGORY_NAME = "HSM Private Chats"  # Category for private chats
 
 # Rank system configuration with role names (will auto-create roles)
+UNRANK_RANK = {
+    "UNRANKED": {
+        "role_name": "UNRANKED",
+        "min_mmr": 0,
+        "max_mmr": 799,
+        "name": "UNRANKED",
+        "emoji": "<:7UNRANKED:1224327892234670171>",
+        "color": 0x4E4E4E
+    }
+}
+
 RANK_ROLES = {
     "SILVER": {
         "role_name": "SILVER SEEKER",
@@ -384,7 +395,7 @@ def get_rank_from_mmr(mmr, is_placed=True):
         if rank_data['min_mmr'] <= mmr <= rank_data['max_mmr']:
             return rank_data
     # Default to UNRANKED if no match found
-    return RANK_ROLES['UNRANKED']
+    return UNRANK_RANK['UNRANKED']
 
 
 async def update_player_rank_role(guild, user_id, new_mmr):
@@ -4998,7 +5009,7 @@ async def reset_season(interaction: discord.Interaction):
                                 color=discord.Color.orange()))
 
                         # البحث عن رتبة UNRANKED الموجودة أو إنشاؤها
-                        unranked_role_name = RANK_ROLES['UNRANKED'][
+                        unranked_role_name = UNRANK_RANK['UNRANKED'][
                             'role_name']
                         unranked_role = discord.utils.get(
                             interaction.guild.roles, name=unranked_role_name)
@@ -5009,7 +5020,7 @@ async def reset_season(interaction: discord.Interaction):
                                 unranked_role = await interaction.guild.create_role(
                                     name=unranked_role_name,
                                     color=discord.Color(
-                                        RANK_ROLES['UNRANKED']['color']),
+                                        UNRANK_RANK['UNRANKED']['color']),
                                     reason=
                                     "Season reset - creating UNRANKED role")
                                 logger.info(
@@ -5244,7 +5255,7 @@ async def reset_season(interaction: discord.Interaction):
                             color=discord.Color.orange()))
 
                     # البحث عن رتبة UNRANKED الموجودة أو إنشاؤها
-                    unranked_role_name = RANK_ROLES['UNRANKED']['role_name']
+                    unranked_role_name = UNRANK_RANK['UNRANKED']['role_name']
                     unranked_role = discord.utils.get(interaction.guild.roles,
                                                       name=unranked_role_name)
 
@@ -5254,7 +5265,7 @@ async def reset_season(interaction: discord.Interaction):
                             unranked_role = await interaction.guild.create_role(
                                 name=unranked_role_name,
                                 color=discord.Color(
-                                    RANK_ROLES['UNRANKED']['color']),
+                                    UNRANK_RANK['UNRANKED']['color']),
                                 reason="Season reset - creating UNRANKED role")
                             logger.info(
                                 f"SEASON RESET: Created UNRANKED role: {unranked_role_name}"
