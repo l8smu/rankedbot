@@ -55,14 +55,6 @@ PRIVATE_CATEGORY_NAME = "HSM Private Chats"  # Category for private chats
 
 # Rank system configuration with role names (will auto-create roles)
 RANK_ROLES = {
-    "UNRANKED": {
-        "role_name": "UNRANKED",
-        "min_mmr": 700,
-        "max_mmr": 799,
-        "name": "UNRANKED",
-        "emoji": "<:0UNRANKED:1395077317407277216>",
-        "color": 0x4E4E4E
-    },
     "SILVER": {
         "role_name": "SILVER SEEKER",
         "min_mmr": 800,
