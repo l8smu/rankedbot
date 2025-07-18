@@ -2429,6 +2429,57 @@ def add_or_update_player(user):
                   (user.display_name, str(user.id)))
         conn.commit()
 
+@bot.tree.command(
+    name="set_mmr",
+    description="Set the MMR for all members (Admin only)"
+)
+@app_commands.default_permissions(administrator=True)
+async def set_mmr_command(interaction: discord.Interaction):
+    """Admin command to set MMR for all members via modal input"""
+    class SetMMRView(discord.ui.View):
+        @discord.ui.button(label="Set MMR", style=discord.ButtonStyle.primary)
+        async def set_mmr_button(self, button_interaction: discord.Interaction, button: discord.ui.Button):
+            if button_interaction.user != interaction.user:
+                await button_interaction.response.send_message(
+                    "❌ Only the admin who used the command can set the MMR.", ephemeral=True)
+                return
+
+            class MMRModal(discord.ui.Modal, title="Set MMR for All Members"):
+                mmr_value = discord.ui.TextInput(
+                    label="MMR Value (0-799)",
+                    placeholder="Enter the MMR to set for all members",
+                    min_length=1,
+                    max_length=3,
+                    required=True
+                )
+
+                async def on_submit(self, modal_interaction: discord.Interaction):
+                    try:
+                        value = int(self.mmr_value.value)
+                        if value < 0 or value > 799:
+                            await modal_interaction.response.send_message(
+                                "❌ Please enter a number between 0 and 799.", ephemeral=True)
+                            return
+
+                        # Update all players in the database
+                        c.execute("UPDATE players SET mmr = ?", (value,))
+                        conn.commit()
+
+                        await modal_interaction.response.send_message(
+                            f"✅ Set MMR for all members to **{value}**.", ephemeral=True)
+                    except Exception as e:
+                        await modal_interaction.response.send_message(
+                            f"❌ Error: {e}", ephemeral=True)
+
+            await button_interaction.response.send_modal(MMRModal())
+
+    embed = discord.Embed(
+        title="Set MMR for All Members",
+        description="Choose the MMR you want to set for all members (0-799).",
+        color=discord.Color.orange()
+    )
+    await interaction.response.send_message(embed=embed, view=SetMMRView(), ephemeral=True)
+
 
 # أمر عرض الرانك
 @bot.tree.command(name='rank',
