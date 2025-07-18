@@ -23,7 +23,7 @@ def show_rank_command(user_id='123456789'):
     
     if not player:
         # Add new player with default stats
-        player = {'id': user_id, 'username': 'NewPlayer', 'mmr': 1000, 'wins': 0, 'losses': 0}
+        player = {'id': user_id, 'username': 'NewPlayer', 'mmr': 1250, 'wins': 0, 'losses': 0}
     
     total_games = player['wins'] + player['losses']
     win_rate = (player['wins'] / total_games * 100) if total_games > 0 else 0
