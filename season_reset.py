@@ -116,7 +116,7 @@ def reset_new_season():
                 'top_players': top_players_before
             },
             'new_season': {
-                'starting_mmr': 1000,
+                'starting_mmr': 1250,
                 'reset_complete': True
             }
         }
