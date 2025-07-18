@@ -123,7 +123,7 @@ c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS players (
     id TEXT PRIMARY KEY,
     username TEXT,
-    mmr INTEGER DEFAULT 1000,
+    mmr INTEGER DEFAULT 1250,
     wins INTEGER DEFAULT 0,
     losses INTEGER DEFAULT 0,
     placement_matches_remaining INTEGER DEFAULT 5,
@@ -5278,7 +5278,7 @@ async def reset_season(interaction: discord.Interaction):
                 modal = StartingMMRModal()
                 await button_interaction.response.send_modal(modal)
 
-            @discord.ui.button(label="✅ إعادة تعيين (1000 نقطة)",
+            @discord.ui.button(label="✅ إعادة تعيين (1250 نقطة)",
                                style=discord.ButtonStyle.danger)
             async def default_reset(self,
                                     button_interaction: discord.Interaction,
@@ -5397,7 +5397,7 @@ async def reset_season(interaction: discord.Interaction):
 
                     # إعادة تعيين اللاعبين
                     c.execute(
-                        "UPDATE players SET mmr = 1000, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0"
+                        "UPDATE players SET mmr = 1250, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0"
                     )
 
                     # حذف المباريات
