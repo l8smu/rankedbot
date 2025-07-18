@@ -123,7 +123,7 @@ c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS players (
     id TEXT PRIMARY KEY,
     username TEXT,
-    mmr INTEGER DEFAULT 1250,
+    mmr INTEGER DEFAULT 1000,
     wins INTEGER DEFAULT 0,
     losses INTEGER DEFAULT 0,
     placement_matches_remaining INTEGER DEFAULT 5,
@@ -4200,7 +4200,7 @@ def calculate_mmr_changes(winning_team, losing_team):
             performance_note += f" (Placement: {placement_count} players)"
 
         # Apply skill-based modifiers
-        if avg_winner_mmr < 1250 and mmr_difference > 50:
+        if avg_winner_mmr < 1000 and mmr_difference > 50:
             # Lower skill player beating higher skill - extra reward
             winner_change *= 1.2
             performance_note += " (Skill Growth)"
@@ -5035,7 +5035,7 @@ async def reset_season(interaction: discord.Interaction):
                 self.starting_mmr = discord.ui.TextInput(
                     label="نقطة البداية (MMR)",
                     placeholder="أدخل النقاط الابتدائية (مثال: 1200)",
-                    default="1250",
+                    default="1000",
                     min_length=3,
                     max_length=4,
                     required=True)
@@ -5278,7 +5278,7 @@ async def reset_season(interaction: discord.Interaction):
                 modal = StartingMMRModal()
                 await button_interaction.response.send_modal(modal)
 
-            @discord.ui.button(label="✅ إعادة تعيين (1250 نقطة)",
+            @discord.ui.button(label="✅ إعادة تعيين (1000 نقطة)",
                                style=discord.ButtonStyle.danger)
             async def default_reset(self,
                                     button_interaction: discord.Interaction,
@@ -5397,7 +5397,7 @@ async def reset_season(interaction: discord.Interaction):
 
                     # إعادة تعيين اللاعبين
                     c.execute(
-                        "UPDATE players SET mmr = 1250, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0"
+                        "UPDATE players SET mmr = 1000, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0"
                     )
 
                     # حذف المباريات
@@ -5442,13 +5442,13 @@ async def reset_season(interaction: discord.Interaction):
                     success_embed.add_field(
                         name="✅ تم الانتهاء من",
                         value=
-                        f"• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• إعادة تعيين {total_players} لاعب إلى **1250 MMR** (افتراضي)\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
+                        f"• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• إعادة تعيين {total_players} لاعب إلى **1000 MMR** (افتراضي)\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
                         inline=False)
 
                     success_embed.add_field(
                         name="🚀 الموسم الجديد",
                         value=
-                        "• جميع اللاعبين متساوون (1250 MMR)\n• سجل نظيف للمباريات\n• منافسة عادلة من البداية\n• جميع اللاعبين يحتاجون 5 مباريات تأهيل",
+                        "• جميع اللاعبين متساوون (1000 MMR)\n• سجل نظيف للمباريات\n• منافسة عادلة من البداية\n• جميع اللاعبين يحتاجون 5 مباريات تأهيل",
                         inline=False)
 
                     success_embed.set_footer(

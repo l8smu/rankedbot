@@ -15,7 +15,7 @@ def setup_demo_database():
     c.execute("""CREATE TABLE IF NOT EXISTS players (
         id TEXT PRIMARY KEY,
         username TEXT NOT NULL,
-        mmr INTEGER DEFAULT 1250,
+        mmr INTEGER DEFAULT 1000,
         wins INTEGER DEFAULT 0,
         losses INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -26,11 +26,11 @@ def setup_demo_database():
     
     # Add players with NO games played (these should NOT appear in leaderboard)
     inactive_players = [
-        ("001", "NewPlayer1", 1250, 0, 0),
-        ("002", "NewPlayer2", 1250, 0, 0),
-        ("003", "NewPlayer3", 1250, 0, 0),
-        ("004", "NewPlayer4", 1250, 0, 0),
-        ("005", "NewPlayer5", 1250, 0, 0),
+        ("001", "NewPlayer1", 1000, 0, 0),
+        ("002", "NewPlayer2", 1000, 0, 0),
+        ("003", "NewPlayer3", 1000, 0, 0),
+        ("004", "NewPlayer4", 1000, 0, 0),
+        ("005", "NewPlayer5", 1000, 0, 0),
     ]
     
     for player_id, username, mmr, wins, losses in inactive_players:
