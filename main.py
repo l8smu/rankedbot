@@ -4200,7 +4200,7 @@ def calculate_mmr_changes(winning_team, losing_team):
             performance_note += f" (Placement: {placement_count} players)"
 
         # Apply skill-based modifiers
-        if avg_winner_mmr < 1000 and mmr_difference > 50:
+        if avg_winner_mmr < 1250 and mmr_difference > 50:
             # Lower skill player beating higher skill - extra reward
             winner_change *= 1.2
             performance_note += " (Skill Growth)"
@@ -5442,13 +5442,13 @@ async def reset_season(interaction: discord.Interaction):
                     success_embed.add_field(
                         name="✅ تم الانتهاء من",
                         value=
-                        f"• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• إعادة تعيين {total_players} لاعب إلى **1000 MMR** (افتراضي)\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
+                        f"• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• إعادة تعيين {total_players} لاعب إلى **1250 MMR** (افتراضي)\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
                         inline=False)
 
                     success_embed.add_field(
                         name="🚀 الموسم الجديد",
                         value=
-                        "• جميع اللاعبين متساوون (1000 MMR)\n• سجل نظيف للمباريات\n• منافسة عادلة من البداية\n• جميع اللاعبين يحتاجون 5 مباريات تأهيل",
+                        "• جميع اللاعبين متساوون (1250 MMR)\n• سجل نظيف للمباريات\n• منافسة عادلة من البداية\n• جميع اللاعبين يحتاجون 5 مباريات تأهيل",
                         inline=False)
 
                     success_embed.set_footer(
