@@ -1,4 +1,5 @@
 import discord
+from discord import ui
 from discord.ext import commands, tasks
 from discord import app_commands
 import sqlite3
@@ -2432,6 +2433,101 @@ def add_or_update_player(user):
                   (user.display_name, str(user.id)))
         conn.commit()
 
+@bot.tree.command(
+    name="player_mmr",
+    description="Set a player's MMR by ID (Admin only)"
+)
+@app_commands.default_permissions(administrator=True)
+async def player_mmr_command(interaction: discord.Interaction):
+    """Admin command to set a player's MMR by ID with step-by-step buttons"""
+
+    class InputPlayerIDView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.value = None
+
+        @discord.ui.button(label="Input Player ID", style=discord.ButtonStyle.primary)
+        async def input_player_id(self, button_interaction: discord.Interaction, button: discord.ui.Button):
+            if button_interaction.user != interaction.user:
+                await button_interaction.response.send_message(
+                    "❌ Only the admin who used the command can input the ID.", ephemeral=True)
+                return
+
+            class PlayerIDModal(discord.ui.Modal, title="Enter Player ID"):
+                player_id = discord.ui.TextInput(
+                    label="Player Discord ID",
+                    placeholder="Enter the Discord user ID",
+                    min_length=5,
+                    max_length=25,
+                    required=True
+                )
+
+                async def on_submit(self, modal_interaction: discord.Interaction):
+                    pid = self.player_id.value.strip()
+                    # Check if player exists
+                    c.execute("SELECT username FROM players WHERE id = ?", (pid,))
+                    result = c.fetchone()
+                    if not result:
+                        await modal_interaction.response.send_message(
+                            f"❌ No player found with ID `{pid}`.", ephemeral=True)
+                        return
+
+                    username = result[0]
+                    # Proceed to next step: set MMR
+                    class SetMMRView(discord.ui.View):
+                        def __init__(self, pid, username):
+                            super().__init__(timeout=120)
+                            self.pid = pid
+                            self.username = username
+
+                        @discord.ui.button(label="Set Player MMR", style=discord.ButtonStyle.green)
+                        async def set_player_mmr(self, mmr_interaction: discord.Interaction, button: discord.ui.Button):
+                            if mmr_interaction.user != interaction.user:
+                                await mmr_interaction.response.send_message(
+                                    "❌ Only the admin who used the command can set the MMR.", ephemeral=True)
+                                return
+
+                            class MMRModal(discord.ui.Modal, title=f"Set MMR for {username}"):
+                                mmr_value = discord.ui.TextInput(
+                                    label="MMR Value",
+                                    placeholder="Enter the new MMR (0-5000)",
+                                    min_length=1,
+                                    max_length=5,
+                                    required=True
+                                )
+
+                                async def on_submit(self, mmr_modal_interaction: discord.Interaction):
+                                    try:
+                                        value = int(self.mmr_value.value)
+                                        if value < 0 or value > 5000:
+                                            await mmr_modal_interaction.response.send_message(
+                                                "❌ Please enter a number between 0 and 5000.", ephemeral=True)
+                                            return
+                                        c.execute("UPDATE players SET mmr = ? WHERE id = ?", (value, pid))
+                                        conn.commit()
+                                        await mmr_modal_interaction.response.send_message(
+                                            f"✅ Set **{username}**'s MMR to **{value}**.", ephemeral=True)
+                                    except Exception as e:
+                                        await mmr_modal_interaction.response.send_message(
+                                            f"❌ Error: {e}", ephemeral=True)
+
+                            await mmr_interaction.response.send_modal(MMRModal())
+
+                    embed2 = discord.Embed(
+                        title="Set Player MMR",
+                        description=f"Player: **{username}** (`{pid}`)\nClick below to set their MMR.",
+                        color=discord.Color.orange()
+                    )
+                    await modal_interaction.response.send_message(embed=embed2, view=SetMMRView(pid, username), ephemeral=True)
+
+            await button_interaction.response.send_modal(PlayerIDModal())
+
+    embed = discord.Embed(
+        title="Set Player MMR",
+        description="Please input player ID to begin.",
+        color=discord.Color.blue()
+    )
+    await interaction.response.send_message(embed=embed, view=InputPlayerIDView(), ephemeral=True)
 
 # أمر عرض الرانك
 @bot.tree.command(name='rank',
@@ -4958,14 +5054,38 @@ async def reset_season(interaction: discord.Interaction):
 
                     await modal_interaction.response.defer()
 
-                    # تنفيذ إعادة التعيين مع النقطة المخصصة
                     try:
-                        # المرحلة 1: إزالة جميع رتب الرانكات من جميع الأعضاء
+                        # المرحلة 1: إعادة تعيين قاعدة البيانات
                         await modal_interaction.edit_original_response(
                             embed=discord.Embed(
                                 title="🔄 جاري إعادة التعيين...",
                                 description=
-                                "**المرحلة 1/5:** إزالة رتب الرانكات من جميع الأعضاء...",
+                                "**المرحلة 1/5:** إعادة تعيين قاعدة البيانات...",
+                                color=discord.Color.orange()))
+
+                        # إعادة تعيين اللاعبين مع النقطة المحددة
+                        c.execute(
+                            "UPDATE players SET mmr = ?, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0",
+                            (starting_mmr, ))
+
+                        # حذف المباريات
+                        c.execute("DELETE FROM matches")
+                        c.execute(
+                            "DELETE FROM sqlite_sequence WHERE name = 'matches'"
+                        )
+
+                        # تنظيف الدردشات
+                        c.execute("UPDATE private_chats SET is_active = 0")
+                        c.execute("UPDATE private_matches SET is_active = 0")
+
+                        conn.commit()
+
+                        # المرحلة 2: إزالة جميع رتب الرانكات من جميع الأعضاء
+                        await modal_interaction.edit_original_response(
+                            embed=discord.Embed(
+                                title="🔄 جاري إعادة التعيين...",
+                                description=
+                                "**المرحلة 2/5:** إزالة رتب الرانكات من جميع الأعضاء...",
                                 color=discord.Color.orange()))
 
                         removed_roles_count = 0
@@ -4973,7 +5093,6 @@ async def reset_season(interaction: discord.Interaction):
                             if member.bot:
                                 continue
 
-                            # العثور على رتب الرانكات التي يملكها العضو
                             rank_roles_to_remove = []
                             for rank_data in RANK_ROLES.values():
                                 role = discord.utils.get(
@@ -4982,7 +5101,6 @@ async def reset_season(interaction: discord.Interaction):
                                 if role and role in member.roles:
                                     rank_roles_to_remove.append(role)
 
-                            # إزالة رتب الرانكات
                             if rank_roles_to_remove:
                                 try:
                                     await member.remove_roles(
@@ -5000,21 +5118,19 @@ async def reset_season(interaction: discord.Interaction):
                                         f"SEASON RESET: Error removing roles from {member.display_name}: {e}"
                                     )
 
-                        # المرحلة 2: إضافة رتبة UNRANKED لجميع الأعضاء
+                        # المرحلة 3: إضافة رتبة UNRANKED لجميع الأعضاء
                         await modal_interaction.edit_original_response(
                             embed=discord.Embed(
                                 title="🔄 جاري إعادة التعيين...",
                                 description=
-                                "**المرحلة 2/5:** إضافة رتبة UNRANKED لجميع الأعضاء...",
+                                "**المرحلة 3/5:** إضافة رتبة UNRANKED لجميع الأعضاء...",
                                 color=discord.Color.orange()))
 
-                        # البحث عن رتبة UNRANKED الموجودة أو إنشاؤها
                         unranked_role_name = UNRANK_RANK['UNRANKED'][
                             'role_name']
                         unranked_role = discord.utils.get(
                             interaction.guild.roles, name=unranked_role_name)
 
-                        # إنشاء رتبة UNRANKED إذا لم تكن موجودة
                         if not unranked_role:
                             try:
                                 unranked_role = await interaction.guild.create_role(
@@ -5038,7 +5154,6 @@ async def reset_season(interaction: discord.Interaction):
                                 if member.bot:
                                     continue
 
-                                # إضافة رتبة UNRANKED إذا لم يكن يملكها
                                 if unranked_role not in member.roles:
                                     try:
                                         await member.add_roles(
@@ -5059,31 +5174,6 @@ async def reset_season(interaction: discord.Interaction):
                                 "SEASON RESET: Failed to find or create UNRANKED role"
                             )
 
-                        # المرحلة 3: إعادة تعيين قاعدة البيانات
-                        await modal_interaction.edit_original_response(
-                            embed=discord.Embed(
-                                title="🔄 جاري إعادة التعيين...",
-                                description=
-                                "**المرحلة 3/5:** إعادة تعيين قاعدة البيانات...",
-                                color=discord.Color.orange()))
-
-                        # إعادة تعيين اللاعبين مع النقطة المحددة
-                        c.execute(
-                            "UPDATE players SET mmr = ?, wins = 0, losses = 0, placement_matches_remaining = 5, is_placed = 0",
-                            (starting_mmr, ))
-
-                        # حذف المباريات
-                        c.execute("DELETE FROM matches")
-                        c.execute(
-                            "DELETE FROM sqlite_sequence WHERE name = 'matches'"
-                        )
-
-                        # تنظيف الدردشات
-                        c.execute("UPDATE private_chats SET is_active = 0")
-                        c.execute("UPDATE private_matches SET is_active = 0")
-
-                        conn.commit()
-
                         # المرحلة 4: تنظيف الذاكرة
                         await modal_interaction.edit_original_response(
                             embed=discord.Embed(
@@ -5092,7 +5182,6 @@ async def reset_season(interaction: discord.Interaction):
                                 "**المرحلة 4/5:** تنظيف الطابور والمباريات النشطة...",
                                 color=discord.Color.orange()))
 
-                        # تنظيف المباريات النشطة في الذاكرة
                         global active_matches, player_queue, match_id_counter
                         active_matches.clear()
                         player_queue.clear()
@@ -5106,10 +5195,8 @@ async def reset_season(interaction: discord.Interaction):
                                 "**المرحلة 5/5:** الانتهاء من إعادة التعيين...",
                                 color=discord.Color.orange()))
 
-                        # تحديد الرتبة المتوقعة للنقطة الجديدة
                         rank_info = get_rank_from_mmr(starting_mmr, True)
 
-                        # إنشاء embed النجاح
                         success_embed = discord.Embed(
                             title="🎉 تم إعادة تعيين الموسم بنجاح!",
                             description="**الموسم الجديد جاهز للبدء!**",
@@ -5118,7 +5205,7 @@ async def reset_season(interaction: discord.Interaction):
                         success_embed.add_field(
                             name="✅ تم الانتهاء من",
                             value=
-                            f"• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• إعادة تعيين {total_players} لاعب إلى **{starting_mmr} MMR**\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
+                            f"• إعادة تعيين {total_players} لاعب إلى **{starting_mmr} MMR**\n• حذف {total_matches} مباراة\n• تنظيف جميع الدردشات الخاصة\n• إزالة {removed_roles_count} رتبة رانك من جميع الأعضاء\n• إضافة رتبة Unranked لـ {unranked_members_count} عضو\n• مسح الطابور النشط\n• إعادة تعيين البليسمنت ماتشز",
                             inline=False)
 
                         success_embed.add_field(
@@ -5141,7 +5228,6 @@ async def reset_season(interaction: discord.Interaction):
                         await modal_interaction.edit_original_response(
                             embed=success_embed, view=None)
 
-                        # تسجيل في السجلات
                         logger.info(
                             f"SEASON RESET: Complete season reset by {interaction.user.display_name} with starting MMR: {starting_mmr}"
                         )
@@ -5149,7 +5235,6 @@ async def reset_season(interaction: discord.Interaction):
                             f"SEASON RESET: {total_players} players reset to {starting_mmr} MMR, {total_matches} matches deleted"
                         )
 
-                        # تحديث عرض الطابور إذا كان موجود
                         queue_channel = discord.utils.get(
                             interaction.guild.channels,
                             name=QUEUE_CHANNEL_NAME)
