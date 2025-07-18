@@ -5528,7 +5528,7 @@ async def set_mmr_command(interaction: discord.Interaction):
 
             class MMRModal(discord.ui.Modal, title="Set MMR for All Members"):
                 mmr_value = discord.ui.TextInput(
-                    label="MMR Value (0-799)",
+                    label="MMR Value (0-9999)",
                     placeholder="Enter the MMR to set for all members",
                     min_length=1,
                     max_length=3,
@@ -5538,9 +5538,9 @@ async def set_mmr_command(interaction: discord.Interaction):
                 async def on_submit(self, modal_interaction: discord.Interaction):
                     try:
                         value = int(self.mmr_value.value)
-                        if value < 0 or value > 799:
+                        if value < 0 or value > 9999:
                             await modal_interaction.response.send_message(
-                                "❌ Please enter a number between 0 and 799.", ephemeral=True)
+                                "❌ Please enter a number between 0 and 9999.", ephemeral=True)
                             return
 
                         # Update all players in the database
