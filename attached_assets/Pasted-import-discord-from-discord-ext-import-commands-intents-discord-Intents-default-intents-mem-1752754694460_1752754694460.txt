@@ -5,6 +5,17 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+UNRANK_RANK = {
+    "UNRANKED": {
+        "role_name": "UNRANKED",
+        "min_mmr": 0,
+        "max_mmr": 799,
+        "name": "UNRANKED",
+        "emoji": "<:7UNRANKED:1224327892234670171>",
+        "color": 0x4E4E4E
+    }
+}
+
 # رتب الـMMR
 RANK_ROLES = {
     "SILVER": {
