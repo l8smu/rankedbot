@@ -517,7 +517,7 @@ async def update_player_rank_role(guild, user_id, new_mmr):
                         #await member.send(embed=embed)
                         #logger.info(
                          #   f"RANK SYSTEM: Sent rank update DM to {member.display_name}"
-                        )
+                   #     )
                    # except discord.Forbidden:
                     #    logger.info(
                             f"RANK SYSTEM: Could not send DM to {member.display_name} (DMs disabled)"
