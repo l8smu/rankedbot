@@ -4786,7 +4786,7 @@ async def update_leaderboard():
                 leaderboard_text += f"{position_emoji} {rank_emoji} **{display_name}**\n"
                 leaderboard_text += f"`{mmr} MMR` • `{wins}W/{losses}L | Games: {total_games}` • `{win_rate:.0f}%`\n\n"
 
-            embed.add_field(name="🎯 أفضل 8 لاعبين",
+            embed.add_field(name="🎯 أفضل لاعبين",
                             value=leaderboard_text,
                             inline=False)
 
