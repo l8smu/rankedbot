@@ -5531,7 +5531,7 @@ async def set_mmr_command(interaction: discord.Interaction):
                     label="MMR Value (0-9999)",
                     placeholder="Enter the MMR to set for all members",
                     min_length=1,
-                    max_length=3,
+                    max_length=4,
                     required=True
                 )
 
@@ -5557,7 +5557,7 @@ async def set_mmr_command(interaction: discord.Interaction):
 
     embed = discord.Embed(
         title="Set MMR for All Members",
-        description="Choose the MMR you want to set for all members (0-799).",
+        description="Choose the MMR you want to set for all members (0-9999).",
         color=discord.Color.orange()
     )
     await interaction.response.send_message(embed=embed, view=SetMMRView(), ephemeral=True)
