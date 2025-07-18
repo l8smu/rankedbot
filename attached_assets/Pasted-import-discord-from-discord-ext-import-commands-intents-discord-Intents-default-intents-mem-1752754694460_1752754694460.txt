@@ -93,7 +93,7 @@ async def updaterank(ctx, mmr: int):
         return
 
     # حذف كل الرتب القديمة من نفس النظام
-    roles_to_remove = [discord.utils.get(guild.roles, name=r['role_name']) for r in RANK_ROLES.values()]
+    roles_to_remove = [discord.utils.get(guild.roles, name=r['role_name']) for r in RANK_ROLES.values() if r['role_name'] != "UNRANKED"]
     for r in roles_to_remove:
         if r in member.roles:
             await member.remove_roles(r)

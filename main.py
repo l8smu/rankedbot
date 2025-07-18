@@ -509,7 +509,7 @@ async def update_player_rank_role(guild, user_id, new_mmr):
                         embed.add_field(
                             name="🔄 Auto-Update System",
                             value=
-                            "Your rank is automatically updated every 60 minutes!",
+                            "Your rank is automatically updated every 10 minutes!",
                             inline=False)
                         embed.set_footer(
                             text="Keep playing to climb higher ranks!")
@@ -1373,9 +1373,9 @@ QUEUE_TIMEOUT_MINUTES = 5
 
 
 # Automatic Rank Update System - تحديث الرتب كل 10 دقائق
-@tasks.loop(minutes=60)
+@tasks.loop(minutes=10)
 async def auto_update_ranks():
-    """تحديث تلقائي للرتب كل 60 دقائق لجميع اللاعبين"""
+    """تحديث تلقائي للرتب كل 10 دقائق لجميع اللاعبين"""
     logger.info("AUTO RANK UPDATE: Starting automatic rank sync")
 
     try:
@@ -2357,7 +2357,7 @@ async def on_ready():
     if not auto_update_ranks.is_running():
         auto_update_ranks.start()
         logger.info(
-            "Started automatic rank update system - Updates every 60 minutes")
+            "Started automatic rank update system - Updates every 10 minutes")
 
     # Sync slash commands
     try:
@@ -6177,13 +6177,13 @@ async def rank_info(interaction: discord.Interaction):
     embed.add_field(
         name="🔄 How It Works",
         value=
-        "• Ranks are assigned automatically based on your MMR\n• Win matches to gain MMR and climb ranks\n• Roles are updated after each match AND every 60 minutes\n• Use `/rank` to see your current rank",
+        "• Ranks are assigned automatically based on your MMR\n• Win matches to gain MMR and climb ranks\n• Roles are updated after each match AND every 10 minutes\n• Use `/rank` to see your current rank",
         inline=False)
 
     embed.add_field(
         name="⚡ Auto-Update System",
         value=
-        "• Ranks update automatically every 60 minutes\n• Instant updates after matches\n• No manual rank requests needed",
+        "• Ranks update automatically every 10 minutes\n• Instant updates after matches\n• No manual rank requests needed",
         inline=False)
 
     embed.set_footer(text="Play matches to climb the ranks!")
