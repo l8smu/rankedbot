@@ -1639,12 +1639,12 @@ async def handle_captain_draft_selection(interaction: discord.Interaction,
         color=discord.Color.purple())
 
     embed.add_field(
-        name="🔴 Team 1 Captain",
+        name="🔵 Team 1 Captain",
         value=f"**{captain1['username']}** ({captain1['mmr']} MMR)",
         inline=True)
 
     embed.add_field(
-        name="🔵 Team 2 Captain",
+        name="🔴 Team 2 Captain",
         value=f"**{captain2['username']}** ({captain2['mmr']} MMR)",
         inline=True)
 
@@ -1768,11 +1768,11 @@ async def handle_captain_pick(interaction: discord.Interaction, draft_id,
     team1_names = [p['username'] for p in draft_state['team1']]
     team2_names = [p['username'] for p in draft_state['team2']]
 
-    embed.add_field(name="🔴 Team 1",
+    embed.add_field(name="🔴 Team 2",
                     value="\n".join([f"• {name}" for name in team1_names]),
                     inline=True)
 
-    embed.add_field(name="🔵 Team 2",
+    embed.add_field(name="🔵 Team 1",
                     value="\n".join([f"• {name}" for name in team2_names]),
                     inline=True)
 
@@ -1835,26 +1835,26 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number,
 
     # Check and delete existing voice channels to prevent duplicates
     existing_voice1 = discord.utils.get(guild.channels,
-                                        name=f"🔴 Team 1 - HSM{hsm_number}")
+                                        name=f"🔵 Team 1 - HSM{hsm_number}")
     if existing_voice1:
         await existing_voice1.delete(
             reason="Preventing duplicate voice channel")
 
     existing_voice2 = discord.utils.get(guild.channels,
-                                        name=f"🔵 Team 2 - HSM{hsm_number}")
+                                        name=f"🔴 Team 2 - HSM{hsm_number}")
     if existing_voice2:
         await existing_voice2.delete(
             reason="Preventing duplicate voice channel")
 
     # Create voice channels for each team with same permissions
     team1_voice = await guild.create_voice_channel(
-        name=f"🔴 Team 1 - HSM{hsm_number}",
+        name=f"🔵 Team 1 - HSM{hsm_number}",
         category=category,
         user_limit=TEAM_SIZE,
         overwrites=overwrites)
 
     team2_voice = await guild.create_voice_channel(
-        name=f"🔵 Team 2 - HSM{hsm_number}",
+        name=f"🔴 Team 2 - HSM{hsm_number}",
         category=category,
         user_limit=TEAM_SIZE,
         overwrites=overwrites)
@@ -1930,7 +1930,7 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number,
     team1_info = '\n'.join(
         [f"• **{p['username']}** ({p['mmr']} MMR)" for p in team1])
     welcome_embed.add_field(
-        name="🔴 Team 1",
+        name="🔵 Team 1",
         value=
         f"{team1_mentions}\n{team1_info}\n**Voice:** {team1_voice.mention}",
         inline=True)
@@ -1940,7 +1940,7 @@ async def create_final_match(guild, all_players, team1, team2, hsm_number,
     team2_info = '\n'.join(
         [f"• **{p['username']}** ({p['mmr']} MMR)" for p in team2])
     welcome_embed.add_field(
-        name="🔵 Team 2",
+        name="🔴 Team 2",
         value=
         f"{team2_mentions}\n{team2_info}\n**Voice:** {team2_voice.mention}",
         inline=True)
@@ -3528,7 +3528,7 @@ async def start_match(ctx):
     team1_mentions = ' '.join([p['user'].mention for p in team1])
     team1_info = '\n'.join(
         [f"{p['username']} ({p['mmr']} MMR)" for p in team1])
-    embed.add_field(name="🔴 Team 1",
+    embed.add_field(name="🔵 Team 1",
                     value=f"{team1_mentions}\n{team1_info}",
                     inline=True)
 
@@ -3536,7 +3536,7 @@ async def start_match(ctx):
     team2_mentions = ' '.join([p['user'].mention for p in team2])
     team2_info = '\n'.join(
         [f"{p['username']} ({p['mmr']} MMR)" for p in team2])
-    embed.add_field(name="🔵 Team 2",
+    embed.add_field(name="🔴 Team 2",
                     value=f"{team2_mentions}\n{team2_info}",
                     inline=True)
 
@@ -3597,7 +3597,7 @@ async def start_match_slash(interaction: discord.Interaction):
     team1_mentions = ' '.join([p['user'].mention for p in team1])
     team1_info = '\n'.join(
         [f"{p['username']} ({p['mmr']} MMR)" for p in team1])
-    embed.add_field(name="🔴 Team 1",
+    embed.add_field(name="🔴 Team 2",
                     value=f"{team1_mentions}\n{team1_info}",
                     inline=True)
 
@@ -3605,7 +3605,7 @@ async def start_match_slash(interaction: discord.Interaction):
     team2_mentions = ' '.join([p['user'].mention for p in team2])
     team2_info = '\n'.join(
         [f"{p['username']} ({p['mmr']} MMR)" for p in team2])
-    embed.add_field(name="🔵 Team 2",
+    embed.add_field(name="🔵 Team 1",
                     value=f"{team2_mentions}\n{team2_info}",
                     inline=True)
 
@@ -5746,13 +5746,13 @@ async def admin_match_control(interaction: discord.Interaction):
                 match_data['team2'])
 
             control_embed.add_field(
-                name="🔴 Team 1",
+                name="🔴 Team 2",
                 value=
                 f"**Players:** {', '.join(team1_names)}\n**Avg MMR:** {team1_mmr:.0f}",
                 inline=True)
 
             control_embed.add_field(
-                name="🔵 Team 2",
+                name="🔵 Team 1",
                 value=
                 f"**Players:** {', '.join(team2_names)}\n**Avg MMR:** {team2_mmr:.0f}",
                 inline=True)
@@ -5987,7 +5987,7 @@ async def game_log(interaction: discord.Interaction):
                     team1_text += f"MMR: {player['mmr']} | W/L: {player['wins']}/{player['losses']} ({winrate:.1f}%)\n\n"
 
                 embed.add_field(
-                    name=f"🔴 Team 1 (Avg MMR: {team1_avg_mmr:.0f})",
+                    name=f"🔴 Team 2 (Avg MMR: {team1_avg_mmr:.0f})",
                     value=team1_text,
                     inline=True)
 
@@ -6004,7 +6004,7 @@ async def game_log(interaction: discord.Interaction):
                     team2_text += f"MMR: {player['mmr']} | W/L: {player['wins']}/{player['losses']} ({winrate:.1f}%)\n\n"
 
                 embed.add_field(
-                    name=f"🔵 Team 2 (Avg MMR: {team2_avg_mmr:.0f})",
+                    name=f"🔵 Team 1 (Avg MMR: {team2_avg_mmr:.0f})",
                     value=team2_text,
                     inline=True)
 
