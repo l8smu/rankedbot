@@ -4845,7 +4845,7 @@ async def update_leaderboard():
                 f"آخر تحديث: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         else:
             embed = discord.Embed(title="🏆 لوحة المتصدرين",
-                                  description="**تحديث تلقائي كل 30 دقيقة**",
+                                  description="**تحديث تلقائي كل 10 دقئاق**",
                                   color=0x00ffcc)
 
             leaderboard_text = ""
@@ -4902,7 +4902,7 @@ async def update_leaderboard():
 
             embed.set_footer(
                 text=
-                f"آخر تحديث: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | يتم التحديث كل 30 دقيقة"
+                f"آخر تحديث: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | يتم التحديث كل 10 دقئاق"
             )
 
         # Clear previous messages and send new leaderboard
